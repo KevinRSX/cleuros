@@ -1,2 +1,4 @@
 (library
- (name cleuros))
+ (name cleuros_parser))
+
+(ocamllex (modules lexer))

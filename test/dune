@@ -1,2 +1,3 @@
 (test
- (name cleuros))
+ (name cleuros)
+ (libraries cleuros_parser))

@@ -5,22 +5,24 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github smeshoyrer/cleuros))
 
-(authors "Author Name")
+(authors "Samuel Meshoyrer")
 
-(maintainers "Maintainer Name")
+(maintainers "Samuel Meshoyrer")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/smeshoyrer/cleuros)
 
 (package
  (name cleuros)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "plt project")
+ (description "plt project")
  (depends ocaml dune)
  (tags
   (topics "to describe" your project)))
+
+(using menhir 2.0)
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
