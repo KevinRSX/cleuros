@@ -30,3 +30,4 @@ _opam/
 /_boot 
 _perf 
 *.corrected
+*.native
