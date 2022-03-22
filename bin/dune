@@ -1,4 +1,0 @@
-(executable
- (public_name cleuros)
- (name main)
- (libraries cleuros_parser))
