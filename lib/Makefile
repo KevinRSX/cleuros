@@ -1,6 +1,6 @@
 .PHONY : all clean
 
 all: 
-	ocamlbuild calc.native
+	ocamlbuild cleuros.native
 clean :
-	rm -rf _build/ calc.native
+	rm -rf _build/ cleuros.native
