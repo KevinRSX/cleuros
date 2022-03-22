@@ -1,6 +1,10 @@
-.PHONY : all clean
+.PHONY : all test clean
 
-all: 
-	ocamlbuild cleuros.native
+all : 
+	ocamlbuild test.native 
+
+test : 
+	./test.native 
+
 clean :
-	rm -rf _build/ cleuros.native
+	rm -rf _build/ test.native

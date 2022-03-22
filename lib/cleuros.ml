@@ -16,9 +16,7 @@ let rec eval = function
             ((Hashtbl.add symbol_table id v ); v)
       | Var(id) -> Hashtbl.find symbol_table id 
 
-
-let _ =
-  let lexbuf = Lexing.from_channel stdin in
-  let expr = Parser.expr Scanner.tokenize lexbuf in
-  let result = eval expr in
-  print_endline (string_of_int result)
+let rec eval_program = function 
+      | [] -> 0
+      | [hd] -> eval hd
+      | hd :: tl -> ignore(eval hd); eval_program tl

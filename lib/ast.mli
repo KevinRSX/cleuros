@@ -6,3 +6,5 @@ type expr =
   | Seq of expr * expr
   | Asn of string * expr
   | Var of string
+
+type program = expr list

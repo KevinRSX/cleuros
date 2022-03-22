@@ -1,6 +1,7 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
+%token NEWLINE
 %token <int> LITERAL
 %token <string> VARIABLE
 
@@ -10,10 +11,16 @@
 %left PLUS MINUS
 %left TIMES DIVIDE
 
-%start expr
-%type <Ast.expr> expr
+%start program
+%type <Ast.program> program
 
 %%
+
+program: expr_list EOF { $1 }
+
+expr_list: 
+/* nothing */ { [] }
+| expr NEWLINE  expr_list { $1 :: $3 }
 
 expr:
 | expr PLUS   expr    { Binop($1, Add, $3) }
