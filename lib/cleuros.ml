@@ -22,7 +22,9 @@ let rec eval = function
       | Var(id) -> get id
       | Swap(id1, id2) -> let tmp = get id1 in 
             (set id1 (get id2);
-             set id2 tmp; 0) 
+             set id2 tmp; 0)
+      (* TODO: implement Blit *)
+      | BLit _ -> 0
 
 let rec eval_program = function 
       | [] -> 0
