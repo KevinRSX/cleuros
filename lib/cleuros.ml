@@ -15,7 +15,9 @@ let rec eval = function
             | Add -> v1 + v2
             | Sub -> v1 - v2
             | Mul -> v1 * v2
-            | Div -> v1 / v2)
+            | Div -> v1 / v2
+            (* TODO: implement the rest of the bops *)
+            | _ -> 0)
       | Asn(id, ex) -> let v = eval ex in ((set id v ); v)
       | Var(id) -> get id
       | Swap(id1, id2) -> let tmp = get id1 in 
