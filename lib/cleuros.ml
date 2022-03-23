@@ -16,7 +16,6 @@ let rec eval = function
             | Sub -> v1 - v2
             | Mul -> v1 * v2
             | Div -> v1 / v2)
-      | Seq(e1, e2) -> ignore (eval e1); eval e2
       | Asn(id, ex) -> let v = eval ex in ((set id v ); v)
       | Var(id) -> get id
       | Swap(id1, id2) -> let tmp = get id1 in 

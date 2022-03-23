@@ -27,7 +27,6 @@ expr:
 | expr MINUS  expr    { Binop($1, Sub, $3) }
 | expr TIMES  expr    { Binop($1, Mul, $3) }
 | expr DIVIDE expr    { Binop($1, Div, $3) }
-| expr SEMI   expr    { Seq($1, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
