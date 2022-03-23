@@ -1,6 +1,22 @@
 open Ast
 
-let eval = function 
-  Int(x) -> x 
-| Var(_) -> 456
-| EOF -> 123
+let symbol_table = Hashtbl.create 64 
+let rec eval = function 
+        Lit(x) -> x
+      | Binop(e1, op, e2) -> 
+            let v1 = eval e1 in 
+            let v2 = eval e2 in 
+            (match op with 
+            | Add -> v1 + v2
+            | Sub -> v1 - v2
+            | Mul -> v1 * v2
+            | Div -> v1 / v2)
+      | Seq(e1, e2) -> ignore (eval e1); eval e2
+      | Asn(id, ex) -> let v = eval ex in 
+            ((Hashtbl.add symbol_table id v ); v)
+      | Var(id) -> Hashtbl.find symbol_table id 
+
+let rec eval_program = function 
+      | [] -> 0
+      | [hd] -> eval hd
+      | hd :: tl -> ignore(eval hd); eval_program tl

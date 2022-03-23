@@ -1,10 +1,11 @@
 # cleuros
 
 ------------------------
-To build: `dune build` 
+First, change to the lib director `cd lib`
 
-To test:`dune runtest`
 
-After successful testrun, update `cleuros.expected` with `dune promote` 
+To build: `make` 
 
-To run `dune exec bin/main.exe`
+To test:`make test`
+
+To clean: `make clean`
