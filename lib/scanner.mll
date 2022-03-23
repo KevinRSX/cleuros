@@ -19,6 +19,8 @@ rule tokenize = parse
 | ','  { COMMA }
 | '#'  { comment lexbuf}
 | "print" { PRINT }
+| "exchange" { EXCHANGE }
+| "with"  { WITH }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
 | eof { EOF }

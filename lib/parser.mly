@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
-%token NEWLINE LPAREN RPAREN COMMA PRINT
+%token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
 %token <int> LITERAL
 %token <string> VARIABLE
 
@@ -31,4 +31,5 @@ expr:
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
+| EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
 

@@ -18,3 +18,6 @@ let _ =
 
   let result = get_result "#Comments only work as full lines\n#like so\n123\n" in
   test_int result 123;
+
+  let result = get_result "x=1111 \n y=2222 \n exchange x with y \n y \n" in 
+  test_int result 1111;
