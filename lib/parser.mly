@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
-%token NEWLINE
+%token NEWLINE LPAREN RPAREN COMMA PRINT
 %token <int> LITERAL
 %token <string> VARIABLE
 
