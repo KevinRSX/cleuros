@@ -37,10 +37,10 @@ let rec string_of_expr = function
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
 
 let rec string_of_stmt = function 
-  | Expr(e) -> string_of_expr e
+  | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | _ -> "\n"
 
 let rec string_of_prog = function 
   | [] -> ""
-  | hd :: tl -> string_of_stmt hd ^ "[;]\n" ^ string_of_prog tl
+  | hd :: tl -> string_of_stmt hd ^ string_of_prog tl

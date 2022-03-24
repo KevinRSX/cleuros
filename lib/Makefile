@@ -1,10 +1,10 @@
 .PHONY : all test clean
 
-all : 
+test: ast.ml cleuros.ml parser.mly scanner.mll test.ml test_helper.ml
 	ocamlbuild test.native 
 
-test : 
-	./test.native 
+run: test.native
+	ocamlbuild test.native && ./test.native 
 
-clean :
+clean:
 	rm -rf _build/ test.native
