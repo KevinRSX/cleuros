@@ -28,4 +28,10 @@ let _ =
   (* test_int result 1111; *)
 
   print_parse "x=1111 \n y=2222 \n exchange x with y \n y \n";
-  print_parse "{ \n x=1111 \n y=2222 \n}\n"
+  print_parse "{ \n x=1111 \n y=2222 \n}\n";
+
+  print_parse "if x + y\n {\n x = x + 1\n y = 2*y\n}\n else x=3\n";
+
+  print_parse "while x + y\n x = x + 1\n";
+
+  print_parse "while x + y\n {\n if x + y\n {\n x = x + 1\n y = 2*y\n}\n else x=3\n}\n";

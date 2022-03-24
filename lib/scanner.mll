@@ -18,10 +18,14 @@ rule tokenize = parse
 | '{'  { LBRACE }
 | '}'  { RBRACE }
 | ','  { COMMA }
+| '<'  { LESS }
 | '#'  { comment lexbuf}
 | "print" { PRINT }
 | "exchange" { EXCHANGE }
 | "with"  { WITH }
+| "if"    { IF }
+| "else"  { ELSE }
+| "while" { WHILE }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
 | eof { EOF }
