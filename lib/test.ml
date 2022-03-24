@@ -28,3 +28,4 @@ let _ =
   (* test_int result 1111; *)
 
   print_parse "x=1111 \n y=2222 \n exchange x with y \n y \n";
+  print_parse "{ \n x=1111 \n y=2222 \n}\n"

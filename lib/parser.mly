@@ -26,7 +26,8 @@ stmt_list:
 ;
 
 stmt:
-| expr NEWLINE { Expr $1 }
+| expr NEWLINE { Expr($1) }
+| LBRACE NEWLINE stmt_list RBRACE NEWLINE { Block($3) }
 ;
 
 expr:
