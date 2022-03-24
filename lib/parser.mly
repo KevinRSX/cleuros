@@ -2,10 +2,12 @@
 
 %token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
 %token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
+%token LBRACE RBRACE
 %token <int> LITERAL
 %token <string> VARIABLE
 
 %left SEMI
+%left NEWLINE
 %right EQUAL
 
 %left PLUS MINUS
@@ -16,11 +18,16 @@
 
 %%
 
-program: expr_list EOF { $1 }
+program: stmt_list EOF { $1 }
 
-expr_list: 
+stmt_list:
 /* nothing */ { [] }
-| expr NEWLINE  expr_list { $1 :: $3 }
+| stmt stmt_list { $1::$2 }
+;
+
+stmt:
+| expr NEWLINE { Expr $1 }
+;
 
 expr:
 | expr PLUS   expr    { Binop($1, Add, $3) }
@@ -31,4 +38,5 @@ expr:
 | LITERAL             { Lit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
+;
 

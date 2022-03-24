@@ -6,7 +6,7 @@ type expr =
   | Lit of int
   | Asn of string * expr
   | Var of string
-  | Swap of string * string 
+  | Swap of string * string
 
 type stmt = 
     Block of stmt list 
@@ -14,7 +14,7 @@ type stmt =
   | If of expr * stmt * stmt  
   | While of expr * stmt
 
-type program = expr list
+type program = stmt list
 
 let string_of_bop = function
     Add -> "+"
@@ -37,10 +37,10 @@ let rec string_of_expr = function
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
 
 let rec string_of_stmt = function 
-  | Expr(e) -> string_of_expr e ^ ";\n"
+  | Expr(e) -> string_of_expr e
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | _ -> "\n"
 
 let rec string_of_prog = function 
   | [] -> ""
-  | hd :: tl -> string_of_expr hd ^ ";\n" ^ string_of_prog tl
+  | hd :: tl -> string_of_stmt hd ^ "[;]\n" ^ string_of_prog tl
