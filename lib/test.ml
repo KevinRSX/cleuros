@@ -27,7 +27,7 @@ let _ =
   (* let result = get_result "x=1111 \n y=2222 \n exchange x with y \n y \n" in *) 
   (* test_int result 1111; *)
 
-  print_parse "x=1111 \n y=2222 \n exchange x with y \n y \n";
+  (* print_parse "x=1111 \n y=2222 \n exchange x with y \n y \n";
   print_parse "{ \n x=1111 \n y=2222 \n}\n";
 
   print_parse "if x + y\n {\n x = x + 1\n y = 2*y\n}\n else x=3\n";
@@ -38,5 +38,6 @@ let _ =
 
   print_parse "x < y\n y is less than z\n a > b \n b is greater than c\n";
 
-  print_parse "a + TESTFUNCTION(x+y,z)\n return a\n";
-
+  print_parse "a + TEST-FUNCTION(x+y,z)\n return a\n"; *)
+  
+  print_parse "MAIN(x)\n{\n x = 5\n x=x+1\n return x\n}\n";

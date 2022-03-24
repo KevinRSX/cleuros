@@ -20,12 +20,41 @@
 
 %%
 
-program: stmt_list EOF { $1 }
+program: fdecls EOF { $1 }
+;
+
+fdecls: 
+/* nothing */ {[]}
+| fdecl fdecls { $1 :: $2 }
+;
+
+fdecl: 
+FUNCTION LPAREN formals_opt RPAREN NEWLINE stmt_list
+{
+    {
+        fname = $1; 
+        args = $3; 
+        body = $6;  
+    }
+}
+;
+
+/* formals_opt */
+formals_opt:
+  /*nothing*/ { [] }
+  | formals_list { $1 }
+;
+
+formals_list:
+  VARIABLE { [$1] }
+  | VARIABLE COMMA formals_list { $1::$3 }
+;
 
 stmt_list:
 /* nothing */ { [] }
 | stmt stmt_list { $1::$2 }
 ;
+
 
 stmt:
 | expr NEWLINE { Expr($1) }
@@ -52,7 +81,9 @@ expr:
 args_opt: 
 /* nothing */ {[]}
 | args { $1 }
+;
 
 args: 
  expr { [$1] }
 | expr COMMA args { $1::$3 }
+;

@@ -16,7 +16,13 @@ type stmt =
   | While of expr * stmt
   | Return of expr
 
-type program = stmt list
+type func_def = { 
+    fname : string; 
+    args : string list; 
+    body : stmt list;
+  }
+
+type program = func_def list
 
 let string_of_bop = function
     Add -> "+"
@@ -47,6 +53,10 @@ let rec string_of_stmt = function
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
 
-let rec string_of_prog = function 
-  | [] -> ""
-  | hd :: tl -> string_of_stmt hd ^ string_of_prog tl
+let string_of_func_def fdecl = 
+  fdecl.fname ^ "(" ^ (String.concat ", " fdecl.args) ^ ")\n{\n" ^
+  String.concat "" (List.map string_of_stmt fdecl.body) ^
+  "}\n"
+
+let string_of_prog prog = 
+  "\n\nParsed program: \n\n" ^ String.concat "\n" (List.map string_of_func_def prog)

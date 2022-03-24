@@ -32,7 +32,7 @@ rule tokenize = parse
 | "return" { RETURN }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
-| upper+ as func { FUNCTION(func) }
+| upper(upper | '-')+ as func { FUNCTION(func) }
 | eof { EOF }
 
 
