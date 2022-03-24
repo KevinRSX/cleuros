@@ -25,6 +25,7 @@ rule tokenize = parse
 | "with"  { WITH }
 | "if"    { IF }
 | "else"  { ELSE }
+| "while" { WHILE }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
 | eof { EOF }

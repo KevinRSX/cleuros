@@ -2,7 +2,7 @@
 
 %token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
 %token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
-%token LBRACE RBRACE IF ELSE LESS
+%token LBRACE RBRACE IF ELSE LESS WHILE
 %token <int> LITERAL
 %token <string> VARIABLE
 
@@ -29,6 +29,7 @@ stmt:
 | expr NEWLINE { Expr($1) }
 | LBRACE NEWLINE stmt_list RBRACE NEWLINE { Block($3) }
 | IF expr NEWLINE stmt ELSE stmt { If($2, $4, $6)}
+| WHILE expr NEWLINE stmt { While($2, $4)}
 ;
 
 expr:

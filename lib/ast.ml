@@ -40,7 +40,7 @@ let rec string_of_stmt = function
   | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
-  | _ -> "\n"
+  | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
 
 let rec string_of_prog = function 
   | [] -> ""
