@@ -1,15 +1,15 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE EQUAL SEMI EOF
+%token PLUS MINUS TIMES DIVIDE EQUAL EOF
 %token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
-%token LBRACE RBRACE IF ELSE LESS WHILE
+%token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token <int> LITERAL
 %token <string> VARIABLE
 
-%left SEMI
 %left NEWLINE
 %right EQUAL
 
+%left LESS GREATER
 %left PLUS MINUS
 %left TIMES DIVIDE
 
@@ -37,6 +37,8 @@ expr:
 | expr MINUS  expr    { Binop($1, Sub, $3) }
 | expr TIMES  expr    { Binop($1, Mul, $3) }
 | expr DIVIDE expr    { Binop($1, Div, $3) }
+| expr LESS expr      { Binop($1, Less, $3)}
+| expr GREATER expr   { Binop($1, Greater, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }

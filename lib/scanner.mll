@@ -19,6 +19,9 @@ rule tokenize = parse
 | '}'  { RBRACE }
 | ','  { COMMA }
 | '<'  { LESS }
+| "is less than" { LESS }
+| '>'  { GREATER }
+| "is greater than" { GREATER }
 | '#'  { comment lexbuf}
 | "print" { PRINT }
 | "exchange" { EXCHANGE }

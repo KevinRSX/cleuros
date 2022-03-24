@@ -1,4 +1,4 @@
-type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq
+type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
 
 type expr =
     Binop of expr * bop * expr
@@ -26,6 +26,7 @@ let string_of_bop = function
   | Less -> "<"
   | And -> "&&"
   | Or -> "||"
+  | Greater -> ">"
 
 let rec string_of_expr = function 
     Binop(e1, b, e2) -> string_of_expr e1 ^ string_of_bop b ^ string_of_expr e2
