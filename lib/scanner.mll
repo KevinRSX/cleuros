@@ -15,6 +15,8 @@ rule tokenize = parse
 | '/'  { DIVIDE }
 | '('  { LPAREN }
 | ')'  { RPAREN }
+| '{'  { LBRACE }
+| '}'  { RBRACE }
 | ','  { COMMA }
 | '#'  { comment lexbuf}
 | "print" { PRINT }
