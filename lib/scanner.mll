@@ -29,8 +29,10 @@ rule tokenize = parse
 | "if"    { IF }
 | "else"  { ELSE }
 | "while" { WHILE }
+| "return" { RETURN }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
+| upper+ as func { FUNCTION(func) }
 | eof { EOF }
 
 

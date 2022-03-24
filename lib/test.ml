@@ -36,4 +36,7 @@ let _ =
 
   print_parse "while x + y\n {\n if x + y\n {\n x = x + 1\n y = 2*y\n}\n else x=3\n}\n";
 
-  print_parse "x < y\n y is less than z\n a > b \n b is greater than c\n"
+  print_parse "x < y\n y is less than z\n a > b \n b is greater than c\n";
+
+  print_parse "a + TESTFUNCTION(x+y,z)\n return a\n";
+

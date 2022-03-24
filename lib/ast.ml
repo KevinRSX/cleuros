@@ -7,12 +7,14 @@ type expr =
   | Asn of string * expr
   | Var of string
   | Swap of string * string
+  | Call of string * expr list 
 
 type stmt = 
     Block of stmt list 
   | Expr of expr 
   | If of expr * stmt * stmt  
   | While of expr * stmt
+  | Return of expr
 
 type program = stmt list
 
@@ -36,12 +38,14 @@ let rec string_of_expr = function
   | Asn(id, e) -> id ^ " = " ^ string_of_expr e 
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
+  | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
+  | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
 
 let rec string_of_prog = function 
   | [] -> ""

@@ -24,7 +24,7 @@ let rec eval = function
             (set id1 (get id2);
              set id2 tmp; 0)
       (* TODO: implement Blit *)
-      | BLit _ -> 0
+      | _ -> 0
 
 let rec eval_program = function 
       | [] -> 0

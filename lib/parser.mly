@@ -3,8 +3,10 @@
 %token PLUS MINUS TIMES DIVIDE EQUAL EOF
 %token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token RETURN
 %token <int> LITERAL
 %token <string> VARIABLE
+%token <string> FUNCTION
 
 %left NEWLINE
 %right EQUAL
@@ -30,6 +32,7 @@ stmt:
 | LBRACE NEWLINE stmt_list RBRACE NEWLINE { Block($3) }
 | IF expr NEWLINE stmt ELSE stmt { If($2, $4, $6)}
 | WHILE expr NEWLINE stmt { While($2, $4)}
+| RETURN expr NEWLINE { Return($2)}
 ;
 
 expr:
@@ -43,5 +46,13 @@ expr:
 | LITERAL             { Lit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
+| FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
 ;
 
+args_opt: 
+/* nothing */ {[]}
+| args { $1 }
+
+args: 
+ expr { [$1] }
+| expr COMMA args { $1::$3 }
