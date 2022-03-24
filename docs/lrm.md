@@ -371,9 +371,9 @@ Comparison of values are performed using the symbols `<`, `<=`, `>`, `>=`, `==`,
 
 Logical operators include `and`, `or`, and `not`.
 ```
-if (a_valid and b_valid)
-if (c_valid or b_valid)
-if (not valid)
+if a_valid and b_valid
+if c_valid or b_valid
+if not valid
 ```
 
 
