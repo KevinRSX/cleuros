@@ -22,7 +22,7 @@ rule tokenize = parse
 | "is less than" { LESS }
 | '>'  { GREATER }
 | "is greater than" { GREATER }
-| '#'  { comment lexbuf}
+| '#'  { comment lexbuf }
 | "print" { PRINT }
 | "exchange" { EXCHANGE }
 | "with"  { WITH }

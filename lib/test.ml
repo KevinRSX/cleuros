@@ -40,4 +40,5 @@ let _ =
 
   print_parse "a + TEST-FUNCTION(x+y,z)\n return a\n"; *)
   
+  (* print_parse "MAIN()\n{\n}\n"; *)
   print_parse "MAIN(x)\n{\n x = 5\n x=x+1\n return x\n}\n";

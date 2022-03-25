@@ -29,12 +29,13 @@ fdecls:
 ;
 
 fdecl: 
-FUNCTION LPAREN formals_opt RPAREN NEWLINE stmt_list
+FUNCTION LPAREN formals_opt RPAREN NEWLINE LBRACE NEWLINE stmt_list RBRACE
+NEWLINE
 {
     {
         fname = $1; 
         args = $3; 
-        body = $6;  
+        body = $8;
     }
 }
 ;
