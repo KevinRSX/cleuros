@@ -1,14 +1,14 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE EQUAL EOF
-%token NEWLINE LPAREN RPAREN COMMA PRINT EXCHANGE WITH
+%token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
 %token <int> LITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
 
-%left NEWLINE
+%left SEMI
 %right EQUAL
 
 %left LESS GREATER
@@ -29,13 +29,12 @@ fdecls:
 ;
 
 fdecl: 
-FUNCTION LPAREN formals_opt RPAREN NEWLINE LBRACE NEWLINE stmt_list RBRACE
-NEWLINE
+FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
 {
     {
         fname = $1; 
         args = $3; 
-        body = $8;
+        body = $6;
     }
 }
 ;
@@ -57,12 +56,14 @@ stmt_list:
 ;
 
 
+/* if-else only supports one statement at this moment and is bounded to else
+   if-else and while also must be wrapped with braces */
 stmt:
-| expr NEWLINE { Expr($1) }
-| LBRACE NEWLINE stmt_list RBRACE NEWLINE { Block($3) }
-| IF expr NEWLINE stmt ELSE stmt { If($2, $4, $6)}
-| WHILE expr NEWLINE stmt { While($2, $4)}
-| RETURN expr NEWLINE { Return($2)}
+| expr SEMI { Expr($1) }
+| LBRACE stmt_list RBRACE { Block($2) }
+| IF expr LBRACE stmt RBRACE ELSE LBRACE stmt RBRACE { If($2, $4, $8)}
+| WHILE expr LBRACE stmt RBRACE { While($2, $4)}
+| RETURN expr SEMI { Return($2)}
 ;
 
 expr:

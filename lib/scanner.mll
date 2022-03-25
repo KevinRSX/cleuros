@@ -6,8 +6,8 @@ let upper = ['A'-'Z']
 let letter = lower | upper
 
 rule tokenize = parse
-  [' ' '\t' '\r'] { tokenize lexbuf }
-| '\n' { NEWLINE }
+  [' ' '\t' '\r' '\n'] { tokenize lexbuf }
+| ';'  { SEMI }
 | '='  { EQUAL }
 | '+'  { PLUS }
 | '-'  { MINUS }
