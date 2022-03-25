@@ -1,7 +1,7 @@
 .PHONY : all test clean
 
 test: ast.ml cleuros.ml parser.mly scanner.mll test.ml test_helper.ml
-	ocamlbuild -pkg core test.native 
+	ocamlbuild test.native
 
 run: test.native
 	ocamlbuild test.native && ./test.native 
