@@ -42,3 +42,7 @@ let _ =
   
   (* print_parse "MAIN()\n{\n}\n"; *)
   print_parse "MAIN(x)\n{\n x = 5\n x=x+1\n return x\n}\n";
+
+  let s = Core.In_channel.read_all "./input.txt" in
+  print_string s;
+  print_parse s;
