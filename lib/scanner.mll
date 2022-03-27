@@ -6,8 +6,8 @@ let upper = ['A'-'Z']
 let letter = lower | upper
 
 rule tokenize = parse
-  [' ' '\t' '\r'] { tokenize lexbuf }
-| '\n' { NEWLINE }
+  [' ' '\t' '\r' '\n'] { tokenize lexbuf }
+| ';'  { SEMI }
 | '='  { EQUAL }
 | '+'  { PLUS }
 | '-'  { MINUS }
@@ -22,15 +22,17 @@ rule tokenize = parse
 | "is less than" { LESS }
 | '>'  { GREATER }
 | "is greater than" { GREATER }
-| '#'  { comment lexbuf}
+| '#'  { comment lexbuf }
 | "print" { PRINT }
 | "exchange" { EXCHANGE }
 | "with"  { WITH }
 | "if"    { IF }
 | "else"  { ELSE }
 | "while" { WHILE }
+| "return" { RETURN }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
+| upper(upper | '-')+ as func { FUNCTION(func) }
 | eof { EOF }
 
 
