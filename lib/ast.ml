@@ -23,7 +23,7 @@ type func_def = {
     fname : string; 
     args : string list; 
     body : stmt list;
-  }
+}
 
 type program = func_def list
 

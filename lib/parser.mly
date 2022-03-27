@@ -33,7 +33,7 @@ typ:
 | INT   { Int }
 | BOOL  { Bool }
 
-fdecl: 
+fdecl:
 FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
 {
     {
