@@ -1,5 +1,7 @@
 type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
 
+type typ = Int | Bool | Void (* No Char/String support now *)
+
 type expr =
     Binop of expr * bop * expr
   | BLit of bool
@@ -17,6 +19,7 @@ type stmt =
   | Return of expr
 
 type func_def = { 
+    rtyp : typ;
     fname : string; 
     args : string list; 
     body : stmt list;
@@ -53,7 +56,13 @@ let rec string_of_stmt = function
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
 
+let string_of_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Void -> "void"
+
 let string_of_func_def fdecl = 
+  string_of_typ fdecl.rtyp ^ " function:\n" ^
   fdecl.fname ^ "(" ^ (String.concat ", " fdecl.args) ^ ")\n{\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"

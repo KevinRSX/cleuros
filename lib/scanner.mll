@@ -7,6 +7,7 @@ let letter = lower | upper
 
 rule tokenize = parse
   [' ' '\t' '\r' '\n'] { tokenize lexbuf }
+(* separators *)
 | ';'  { SEMI }
 | '='  { EQUAL }
 | '+'  { PLUS }
@@ -19,17 +20,20 @@ rule tokenize = parse
 | '}'  { RBRACE }
 | ','  { COMMA }
 | '<'  { LESS }
-| "is less than" { LESS }
 | '>'  { GREATER }
-| "is greater than" { GREATER }
 | '#'  { comment lexbuf }
-| "print" { PRINT }
-| "exchange" { EXCHANGE }
-| "with"  { WITH }
-| "if"    { IF }
-| "else"  { ELSE }
-| "while" { WHILE }
-| "return" { RETURN }
+(* reserved words. TODO: see LRM *)
+| "print"     { PRINT }
+| "exchange"  { EXCHANGE }
+| "with"      { WITH }
+| "if"        { IF }
+| "else"      { ELSE }
+| "while"     { WHILE }
+| "return"    { RETURN }
+(* types. TODO: char, string, array, custom type *)
+| "int"       { INT }
+| "bool"      { BOOL }
+(* literals TODO: char literal, string literal, list *)
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
 | upper(upper | '-')+ as func { FUNCTION(func) }

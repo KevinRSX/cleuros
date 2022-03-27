@@ -4,6 +4,7 @@
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
+%token INT BOOL
 %token <int> LITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
@@ -28,13 +29,27 @@ fdecls:
 | fdecl fdecls { $1 :: $2 }
 ;
 
+typ:
+| INT   { Int }
+| BOOL  { Bool }
+
 fdecl: 
 FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
 {
     {
-        fname = $1; 
-        args = $3; 
+        rtyp = Void;
+        fname = $1;
+        args = $3;
         body = $6;
+    }
+}
+| typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+{
+    {
+        rtyp = $1;
+        fname = $2;
+        args = $4;
+        body = $7;
     }
 }
 ;

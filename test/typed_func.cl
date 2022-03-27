@@ -1,5 +1,5 @@
 # valid
-MAIN()
+int MAIN()
 {
 	x = 3;
 	y = x + 1;
