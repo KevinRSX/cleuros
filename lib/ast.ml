@@ -52,6 +52,7 @@ let rec string_of_expr = function
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+  (* TODO: change to sstmt list *)
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
