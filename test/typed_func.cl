@@ -10,3 +10,8 @@ int MAIN()
 	}
 	return z;
 }
+
+FUCK()
+{
+	x = 3;
+}

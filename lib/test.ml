@@ -48,7 +48,7 @@ let _ =
   (
     let s =  progstr_from_file Sys.argv.(1) in
     let ast = get_ast s in
-    print_endline (check_funcs ast);
+    print_endline (Sast.string_of_sprogram (check_func_list ast));
     print_parsed s;
   )
 
