@@ -38,19 +38,20 @@ let rec string_of_sexpr (t, e) =
   | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | SCall(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
   ) ^ ")"
+
 let rec string_of_sstmt = function
   | SExpr(e) -> string_of_sexpr e ^ "[;]\n"
-  | Block(sstmts) -> "{\n" ^ String.concat "" (List.map string_of_sstmt sstmts) ^ "}\n"
-  | If(cond, sstmt1, stmt2) ->
+  | SBlock(sstmts) -> "{\n" ^ String.concat "" (List.map string_of_sstmt sstmts) ^ "}\n"
+  | SIf(cond, sstmt1, sstmt2) ->
       "if " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt1 ^ "else\n" ^
       string_of_sstmt sstmt2 (* TODO: change If & While to sstmt list *)
-  | While(cond, sstmt) -> "while " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt
-  | Return(e) -> "return " ^ string_of_sexpr e ^ "[;]\n"
+  | SWhile(cond, sstmt) -> "while " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt
+  | SReturn(e) -> "return " ^ string_of_sexpr e ^ "[;]\n"
 
 let string_of_sfdecl sfdecl =
   string_of_typ sfdecl.srtyp ^ " function:\n" ^
-  fdecl.sfname ^ "(" ^ (String.concat ", " fdecl.sargs) ^ ")\n{\n" ^
-  String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
+  sfdecl.sfname ^ "(" ^ (String.concat ", " sfdecl.sargs) ^ ")\n{\n" ^
+  String.concat "" (List.map string_of_sstmt sfdecl.sbody) ^
   "}\n"
 
 let string_of_sprogram prog =
