@@ -39,8 +39,6 @@ rule tokenize = parse
 | upper(upper | '-')+ as func { FUNCTION(func) }
 | eof { EOF }
 
-
-(* TODO: allow comments to start in the middle of a line *)
 and comment = parse 
   '\n' { tokenize lexbuf }
 | _    { comment lexbuf}

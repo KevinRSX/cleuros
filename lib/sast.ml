@@ -5,7 +5,7 @@ and sx =
     SBinop of sexpr * bop * sexpr
   | SBLit of bool
   | SLit of int
-  | SAsn of string * sexpr
+  | SAsn of string * sexpr (* must be Void reported by semant.ml *)
   | SVar of string
   | SSwap of string * string
   | SCall of string * sexpr list 
@@ -30,13 +30,13 @@ type sprogram = sfunc_def list
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
     SBinop(e1, b, e2) -> string_of_sexpr e1 ^ string_of_bop b ^ string_of_sexpr e2
-  | SBLit(true) -> "true"
-  | SBLit(false) -> "false"
+  | SBLit(true) -> "TRUE"
+  | SBLit(false) -> "FALSE"
   | SLit(l) -> string_of_int l
-  | SAsn(id, e) -> id ^ " = " ^ string_of_sexpr e
+  | SAsn(id, e) -> "Assignment # " ^ id ^ " = " ^ string_of_sexpr e
   | SVar(id) -> id
   | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
-  | SCall(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
+  | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
   ) ^ ")"
 
 let rec string_of_sstmt = function

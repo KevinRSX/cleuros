@@ -76,8 +76,8 @@ stmt_list:
 stmt:
 | expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block($2) }
-| IF expr LBRACE stmt RBRACE ELSE LBRACE stmt RBRACE { If($2, $4, $8)}
-| WHILE expr LBRACE stmt RBRACE { While($2, $4)}
+| IF expr LBRACE stmt RBRACE ELSE LBRACE stmt RBRACE { If($2, $4, $8) }
+| WHILE expr stmt { While($2, $3) }
 | RETURN expr SEMI { Return($2)}
 ;
 

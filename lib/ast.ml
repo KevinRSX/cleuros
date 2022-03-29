@@ -1,6 +1,6 @@
 type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
 
-type typ = Int | Bool | Void (* No Char/String support now *)
+type typ = Int | Bool | Void | Temp (* No Char/String support now *)
 
 type expr =
     Binop of expr * bop * expr
@@ -61,6 +61,7 @@ let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Void -> "void"
+  | Temp -> "Temp"
 
 let string_of_func_def fdecl = 
   string_of_typ fdecl.rtyp ^ " function:\n" ^
