@@ -1,7 +1,7 @@
 # cleuros
 
 ------------------------
-First, change to the lib director `cd lib`
+First, change to the lib directory `cd lib`
 
 
 To build: `make` 
