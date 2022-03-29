@@ -4,12 +4,14 @@ open Sast
 module StringMap = Map.Make(String)
 
 let rec check_expr = function
+  | Binop (expr1, bop, expr2) -> (Temp, SBinop (check_expr expr1, bop,
+    check_expr expr2))
+  | BLit b -> (Bool, SBLit b)
   | Lit i -> (Int, SLit i)
   | Asn (id, expr) -> (Void, SAsn (id, check_expr expr))
-  | Var (id) -> (Temp, SVar id)
+  | Var id -> (Temp, SVar id)
   | Swap (id1, id2) -> (Void, SSwap (id1, id2))
   | Call (fname, arg_list) -> (Temp, SCall(fname, List.map check_expr arg_list))
-  | _ -> (Int, SLit 1000)
 
 
 let rec check_stmt_list all_stmt =

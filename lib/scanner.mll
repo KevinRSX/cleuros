@@ -34,6 +34,8 @@ rule tokenize = parse
 | "int"       { INT }
 | "bool"      { BOOL }
 (* literals TODO: char literal, string literal, list *)
+| "TRUE"      { BOOLVAR(true) }
+| "FALSE"     { BOOLVAR(false) }
 | digit+ as lit { LITERAL(int_of_string lit) }
 | lower(letter | digit)* as id { VARIABLE(id) }
 | upper(upper | '-')+ as func { FUNCTION(func) }

@@ -5,6 +5,7 @@
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
 %token INT BOOL
+%token <bool> BOOLVAR
 %token <int> LITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
@@ -71,8 +72,7 @@ stmt_list:
 ;
 
 
-/* if-else only supports one statement at this moment and is bounded to else
-   if-else and while also must be wrapped with braces */
+/* if-else are bound at this point */
 stmt:
 | expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block($2) }
@@ -90,6 +90,7 @@ expr:
 | expr GREATER expr   { Binop($1, Greater, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
+| BOOLVAR             { BLit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
