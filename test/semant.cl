@@ -10,6 +10,7 @@ int MAIN()
 		x = 1;
 	}
 	else {
+		y = STUB();
 		y = 1;
 	}
 
@@ -23,6 +24,10 @@ int MAIN()
 	return z;
 }
 
+int STUB()
+{
+	return 0;
+}
 
 BLOCK()
 {
