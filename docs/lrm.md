@@ -18,9 +18,9 @@ Comments begins with the pound character `#`.
 
 Additionally, the variable scope is limited by the tab character `\t`. That is, indentation must be done using `\t` and will change the variable scope. For example:
 ```
-x = 3
-    y = 1
-x = y # this is an error
+x := 3
+    y := 1
+x := y # this is an error
 ```
 
 
@@ -96,9 +96,9 @@ In CLeuRoS, there are two kinds of types, primitive and non-primitive. For the p
 Variables of primitive types must be initialized before using. Usage of an undeclared variables is illegal. The type of such a variable cannot be changed after its first initialization.
 
 ```
-a = 1
-a = b # illegal, b not declared
-a = 2.2 # illegal, a is int not float
+a := 1
+a := b # illegal, b not declared
+a := 2.2 # illegal, a is int not float
 ```
 
 
@@ -107,7 +107,7 @@ a = 2.2 # illegal, a is int not float
 
 Boolean type represents a simple one-bit variable. It cannot be implicitly converted by integer type.
 ```
-myBool = TRUE
+myBool := TRUE
 ```
 
 
@@ -116,7 +116,7 @@ myBool = TRUE
 
 CLeuRoS uses 32 bits signed integers. Larger numbers are not supported and will cause overflow.
 ```
-myInt = 5
+myInt := 5
 ```
 
 
@@ -125,7 +125,7 @@ myInt = 5
 
 `float` conforms to IEEE 754 single precision.
 ```
-myFloat = 1.2
+myFloat := 1.2
 ```
 
 
@@ -135,7 +135,7 @@ myFloat = 1.2
 `char` is a 8-bit type representing standard ASCII characters. A declaration of a `char` must be surrounded with *single* quotation marks. A `char` variable cannot be implicitly converted to other types, such as `int`.
 
 ```
-myChar = 'a'
+myChar := 'a'
 ```
 
 
@@ -143,20 +143,20 @@ myChar = 'a'
 ### 3.1.5 String type 
 
 Strings can be assigned using the usual assignment using *double* quotation marks. Like any primitive types, it does not require explicit declaration.
-``` str1 = "hello"```
+``` str1 := "hello"```
 Two strings can be concatenated using the `concat ... with ...` keyword:
 
 ```
-str2 = concat "hello" with ", world"
+str2 := concat "hello" with ", world"
 ```
 Note that `concat ... with ...` keyword can be used multiple times:
 ```
-str3 = concat "Is" with " Prof." with " Gu" with " Haojun?"
+str3 := concat "Is" with " Prof." with " Gu" with " Haojun?"
 # str is "Is Prof. Gu Haojun?"
 ```
 With the `[]` operator, a particular character of the string, whose type is `char`, can be accessed.
 ```
-str3[1] == 's' # TRUE
+str3[1] = 's' # TRUE
 ```
 Out-of-bound access returns an error at runtime. That is, the compiler should retain a value recording the length of the string.
 
@@ -175,8 +175,8 @@ let arr1 be array of bool
 
 It is possible to assign values to an array directly after declaring it:
 ```
-let arr2 = [TRUE, FALSE, TRUE]
-let arr3 = [FALSE, FALSE, FALSE]
+arr2 := [TRUE, FALSE, TRUE]
+arr3 := [FALSE, FALSE, FALSE]
 ```
 
 As with `string`s, the following operations are valid:
@@ -184,11 +184,11 @@ As with `string`s, the following operations are valid:
 * The operator `[]` can be used to access elements.
 * To concatenate two arrays, use the keywords `concat ... with ...`; they can be used several times:
 ```
-let arr4 = [1, 2, 3]
-let arr5 = [4, 5, 6]
-let arr6 = concat arr1 with arr2
+arr4 := [1, 2, 3]
+arr5 := [4, 5, 6]
+arr6 := concat arr1 with arr2
 # arr6 is [1,2,3,4,5,6]
-let arr7 = concat arr4 with arr5 with [7]
+arr7 := concat arr4 with arr5 with [7]
 # arr7 is [1,2,3,4,5,6,7]
 ```
 To add an element to the end of an array, use keyword `append ... to ...`:
@@ -200,10 +200,10 @@ append FALSE to arr8
 ```
 To remove the last element from the array, use keyword `removeLast`, which returns the item removed; this item may or may not be used.
 ```
-let arr9 = [TRUE, FALSE, TRUE]
+arr9 := [TRUE, FALSE, TRUE]
 removeLast arr9
 # arr9 is [TRUE, FALSE]
-myBool = removeLast arr9 # myBool is FALSE
+myBool := removeLast arr9 # myBool is FALSE
 ```
 
 
@@ -223,15 +223,15 @@ let s1 be student
 ```
 Members can be accessed and assigned using the `.` operator:
 ```
-s1.name = "Jae"
+s1.name := "Jae"
 ```
 Custom types can also be initialized using indentation:
 ```
 let s2 be student:
-    name = "Stephen A. Edwards"
-    age = "21"
-    gpa = "4.33"
-    society = ["rpi board development", "McDonald's Taiwan"]
+    name := "Stephen A. Edwards"
+    age := "21"
+    gpa := "4.33"
+    society := ["rpi board development", "McDonald's Taiwan"]
 ```
 
 
@@ -261,13 +261,13 @@ Only the following explicit castings are allowed:
  - `int` to `float`: this simply changes the precision of the number.
  -  `bool`, `int`, `float`, `char`, and `array` to `string`: converting variables to corresponding strings. Specifically, `float`s will be converted to the string containing the number of non-zero digits (up to 7) after the decimal. `array`s will have each literal converted to using :
 ```
-cstring([1,2]) == "[1,2]"
-cstring([TRUE, FALSE]) == "[TRUE, FALSE]"
-cstring([1.10293801928, 2.4]) == "[1.102938, 2.4]"
-cstring('a') == "a"
+cstring([1,2]) = "[1,2]"
+cstring([TRUE, FALSE]) = "[TRUE, FALSE]"
+cstring([1.10293801928, 2.4]) = "[1.102938, 2.4]"
+cstring('a') = "a"
 
 let arr be array of int
-cstring(arr) == "[]"
+cstring(arr) = "[]"
 ```
  - Note that `bool` cannot be explicitly converted from/to either `int` or `float`, or any other types, because the pseudo language requires a strict separation between the use of boolean and normal numbers.
  - Conversions for the custom types are not allowed.
@@ -288,21 +288,21 @@ Type Errors will be reported at compilation time (!) Type errors can be caused b
 All the primitive types will be placed on the stack, whereas non-primitive types will be placed on the heap. The references to non-primitive variables are simply "references" to the variables.
 ```
 let s2 be student:
-    name = "Stephen A. Edwards"
-    age = "21"
-    gpa = "4.33"
-    society = ["rpi board development", "McDonald's Taiwan"]
+    name := "Stephen A. Edwards"
+    age := "21"
+    gpa := "4.33"
+    society := ["rpi board development", "McDonald's Taiwan"]
 
 print(s2.age) # 21
 
-s1 = s2
-s1.age = 22
+s1 := s2
+s1.age := 22
 print(s2.age) # 22
 ```
 Automatic garbage collection is supported in the language. For example,
 ```
 let a be student
-a = NULL # a will be trashed
+a := NULL # a will be trashed
 ```
 
 
@@ -323,10 +323,10 @@ The operators are listed in descending precendence. LR associativity means left-
 | 4          | `*`, `/`, `%`       | Multiplication, Division, modulus | LR            |
 | 5          | `+`, `-`            | Addition, Subtraction             | LR            |
 | 6          | `<`, `<=`, `>`,`>=` | Comparison                        | LR            |
-| 7          | `==`, `!=`          | Equal and non-equal               | LR            |
+| 7          | `=`, `!=`           | Equal and non-equal               | LR            |
 | 8          | `and`               | Logical AND                       | LR            |
 | 9          | `or`                | Logical OR                        | LR            |
-| 10         | `=`                 | Assignment                        | RL            |
+| 10         | `:=`                | Assignment                        | RL            |
 
 
 
@@ -348,7 +348,7 @@ In particular,
 
 - Division with zero will cause runtime error.
 
-- `%` is designed such that `(a / b) * b + a % b == a`, where `a` and `b` are both `int`.
+- `%` is designed such that `(a / b) * b + a % b = a`, where `a` and `b` are both `int`.
 
 
 
@@ -356,8 +356,8 @@ In particular,
 
 Assignment is performed using the `=` operator. Types must remain constant throughout the scope of a variable. 
 ```
-myInt = 5 
-myInt = "test"  # illegal
+myInt := 5 
+myInt := "test"  # illegal
 ```
 
 ## 4.4 Comparison
@@ -390,10 +390,10 @@ x = A[0]    # x is 1
 
 Unary operators include `+` and `-`, which represent the positive or negative of an integer or Boolean value; the plus sign will usually be unnecessary with integers. Applied to a variable, the operator will be a no-op if the types are identical and flip the sign if the types are different. 
 ```
-p = 10 # + is unnecessary
-q = -5
-r = +p # r is 10
-s = -p # s is -10
+p := 10 # + is unnecessary
+q := -5
+r := +p # r is 10
+s := -p # s is -10
 ```
 
 
@@ -405,32 +405,38 @@ s = -p # s is -10
 Declarations have the format of identifier followed by initial value. All values have to be initialized at declaration. Once an identifier has been bound to a type, its type cannot change. 
 
 ```
-x = 5 
-y = "test"
+x := 5 
+y := "test"
 ```
 
 
 ## 5.2 Literal expressions
 
 Literal expressions take one of 4 forms: 
-* an integer: `myInt = 5`
-* a float: `myFloat = 1.0`
-* a string: `myString  = "Hello"`
-* a boolean: `myBool = TRUE`
+* an integer: `myInt := 5`
+* a float: `myFloat := 1.0`
+* a string: `myString := "Hello"`
+* a boolean: `myBool := TRUE`
 
 
 
 ## 5.3 List expressions
 
 * a list of integers:
-`
-a = [1,2,3]
-`
+  ```
+  a := [1,2,3]
+  ```
+
+  
+
 * a list of strings:
-`alpha = ["a","bc","def"]`
-`let beta be an array of bool`
 
+  ```
+  alpha := ["a","bc","def"]
+  let beta be array of bool
+  ```
 
+  
 
 ## 5.5 Control flow
 
@@ -443,15 +449,15 @@ The `if` statement contains a statement which must be true to enter the "then" b
 
 ```
 if a < b 
-    c = 2 + d
+    c := 2 + d
 else 
-    d = 5 + f 
+    d := 5 + f 
 ```
 
 ```
 if b > a 
-    c = 3 * d 
-    d = 4 / e
+    c := 3 * d 
+    d := 4 / e
 ```
 In addition, `if` and `elif` cannot be followed by a non-boolean statement.
 
@@ -464,7 +470,7 @@ if ("Hello") # Error
 The `while` loop begins with a boolean loop condition expression. This will loop the expression(s) in the block until the expression is evaluated to FALSE.
 
 ```
-while <expr>
+while <boolean expr>
     block
 ```
 
@@ -496,9 +502,9 @@ where `a` and `b` should have the following properties:
 
  - `a` and `b` are of the same type
  ```
- x = 1
- y = "clrs"
- z = 2
+ x := 1
+ y := "clrs"
+ z := 2
  exchange x with z # x is 2, and z is 1
  exchange x with y # this is an error
  ```
@@ -515,12 +521,12 @@ The `print()` statement can only be followed by strings. If variables are to be 
 
 ```
 print("My test string")  # prints "My test string"
-x = 5 
+x := 5 
 print(x)    # prints "5"
-a = [1,2,3]
+a := [1,2,3]
 print(a)   # prints "[1,2,3]"
 print(concat a with x) # error because x is not string
-y = 4
+y := 4
 print(x + y) # prints 9
 ```
 Custom types cannot be printed.
@@ -528,8 +534,8 @@ Custom types cannot be printed.
 The `input()` function will take an input from the user and store it in the associated variable. `input()` will always store the value as a string. To convert the input to an appropriate type, you should use explicit casting.
 
 ```
-y = input() # user enters "5"
-x = cint(y)  # x is 5, y is "5"
+y := input() # user enters "5"
+x := cint(y)  # x is 5, y is "5"
 ```
 
 
@@ -558,15 +564,15 @@ Access to non-primitive types are simply references.
 
 ```
 let s2 be student:
-    name = "Stephen A. Edwards"
-    age = "21"
-    gpa = "4.33"
-    society = ["rpi board development", "McDonald's Taiwan"]
+    name := "Stephen A. Edwards"
+    age := "21"
+    gpa := "4.33"
+    society := ["rpi board development", "McDonald's Taiwan"]
 
 print(s2.age) # 21
 
-s1 = s2
-s1.age = 22
+s1 := s2
+s1.age := 22
 print(s2.age) # 22
 ```
 
@@ -591,12 +597,12 @@ Primitive arguments will be passed by *values*, whereas non-primitive arguments 
 
 ```
 MUT(a be int, b be array of int)
-    a = a + 1
-    b[0] = 1
+    a := a + 1
+    b[0] := 1
 
-a = 1
+a := 1
 let b be array of int
-b = [0,2,3]
+b := [0,2,3]
 MUT(a, b) # a is 1, b is [1,2,3]
 ```
 
@@ -611,6 +617,6 @@ CLeuRoS requires a main function `MAIN` as the entry point. It should take no ar
 ```
 # love.cl -- A minimal CLeuRoS program
 MAIN()
-		print("I love algorithm!\n")
+    print("I love algorithm!\n")
 ```
 

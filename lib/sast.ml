@@ -29,11 +29,12 @@ type sprogram = sfunc_def list
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
-    SBinop(e1, b, e2) -> string_of_sexpr e1 ^ string_of_bop b ^ string_of_sexpr e2
+    SBinop(e1, b, e2) -> string_of_sexpr e1 ^ " " ^ string_of_bop b ^ " " ^
+                          string_of_sexpr e2
   | SBLit(true) -> "TRUE"
   | SBLit(false) -> "FALSE"
   | SLit(l) -> string_of_int l
-  | SAsn(id, e) -> "Assignment # " ^ id ^ " = " ^ string_of_sexpr e
+  | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
   | SVar(id) -> id
   | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
@@ -44,7 +45,7 @@ let rec string_of_sstmt = function
   | SBlock(sstmts) -> "{\n" ^ String.concat "" (List.map string_of_sstmt sstmts) ^ "}\n"
   | SIf(cond, sstmt1, sstmt2) ->
       "if " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt1 ^ "else\n" ^
-      string_of_sstmt sstmt2 (* TODO: change If & While to sstmt list *)
+      string_of_sstmt sstmt2
   | SWhile(cond, sstmt) -> "while " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt
   | SReturn(e) -> "return " ^ string_of_sexpr e ^ "[;]\n"
 

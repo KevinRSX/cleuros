@@ -66,8 +66,8 @@ let rec check_func_list all_func =
     let err = "illegal binary op" in 
     if t1 = t2 then 
       let t = match bop with 
-        Add | Sub | Mul | Div when t1 = Int -> Int 
-      | Add | Sub | Mul | Div when t1 = Bool -> raise (Failure err)
+        Add | Sub | Mul | Div | Mod when t1 = Int -> Int 
+      | Add | Sub | Mul | Div | Mod when t1 = Bool -> raise (Failure err)
       | Neq | Less | And | Or | Eq | Greater -> Bool
       | _ -> raise (Failure err)
       in
@@ -75,16 +75,16 @@ let rec check_func_list all_func =
     else raise (Failure err)
   | BLit b -> (Bool, SBLit b)
   | Lit i -> (Int, SLit i)
-  | Asn (id, expr) -> let typ, v = check_expr cfunc expr in 
-     set_id cfunc id typ f_sym_table; (Void, SAsn (id, (typ, v)))
+  | Asn (id, expr) ->
+      let typ, v = check_expr cfunc expr in 
+      set_id cfunc id typ f_sym_table;
+      (Void, SAsn (id, (typ, v)))
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
   | Swap (id1, id2) -> (Void, SSwap (id1, id2))
   | Call (fname, arg_list) ->
       let sarg_list = List.map (check_expr cfunc) arg_list in
       let arg_type_list = List.map (function (t, _) -> t) sarg_list in
       verify_args fname arg_type_list f_param_table;
-      (* Prof. Edward said fst/snd was not functional and deducted my points for
-         doing that in PFP *)
       (get_fn fname f_sym_table, SCall(fname, sarg_list))
   in
 
@@ -92,10 +92,21 @@ let rec check_func_list all_func =
     let rec check_stmt cfunc = function
       | Block sub_stmts -> SBlock (check_stmt_list cfunc sub_stmts)
       | Expr expr -> SExpr (check_expr cfunc expr)
-      (* TODO: probably add boolean support for condition of if *)
-      | If (expr, stmt1, stmt2) -> SIf (check_expr cfunc expr, check_stmt cfunc stmt1,
-        check_stmt cfunc stmt2)
-      | While (expr, stmt) -> SWhile (check_expr cfunc expr, check_stmt cfunc stmt)
+      (* TODO: need to check whether expr of SIf/SWhile is boolean *)
+      | If (expr, stmt1, stmt2) ->
+          let sexpr = check_expr cfunc expr in
+          let expr_typ = fst sexpr in
+          if expr_typ != Bool then raise (Failure
+            ("Condition in if statement must be of type bool, but "
+            ^ string_of_typ (expr_typ) ^ " is provided"))
+          else SIf (sexpr, check_stmt cfunc stmt1, check_stmt cfunc stmt2)
+      | While (expr, stmt) ->
+          let sexpr = check_expr cfunc expr in
+          let expr_typ = fst sexpr in
+          if expr_typ != Bool then raise (Failure
+            ("Condition in while statement must be of type bool, but "
+            ^ string_of_typ (expr_typ) ^ " is provided"))
+          else SWhile (check_expr cfunc expr, check_stmt cfunc stmt)
       | Return expr -> SReturn (check_expr cfunc expr)
     in
     match all_stmt with

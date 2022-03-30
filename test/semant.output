@@ -1,0 +1,58 @@
+ocamlbuild cleuros.native && ./cleuros.native ../test/semant.cl
+
+
+Sementically checked program: 
+
+int function:
+MAIN()
+{
+(void : Assignment # x := (int : 4))[;]
+(int : x)[;]
+(int : 3)[;]
+(void : Assignment # a := (bool : TRUE))[;]
+(void : Assignment # y := (int : (int : x) + (int : 1)))[;]
+(void : Assignment # q := (bool : (int : x) > (int : y)))[;]
+(void : Assignment # q := (bool : FALSE))[;]
+if (bool : (int : x) > (int : y))
+{
+(void : Assignment # x := (int : 1))[;]
+}
+else
+{
+(void : Assignment # z := (int : Call # STUB()))[;]
+(void : Assignment # b := (int : 1))[;]
+}
+(void : swap(x, y))[;]
+(void : Call # BLOCK())[;]
+(void : Assignment # myIntVar := (int : (int : (int : 5) + (int : x)) + (int : Call # PLAY((int : x), (bool : q)))))[;]
+while (bool : (int : x) > (int : 0))
+{
+(void : Assignment # x := (int : 1))[;]
+(void : Assignment # y := (int : 9))[;]
+}
+}
+
+int function:
+STUB()
+{
+return (int : 0)[;]
+}
+
+int function:
+PLAY(Param # (int: a), Param # (bool: b))
+{
+(void : Assignment # a := (int : 1))[;]
+(void : Assignment # b := (bool : TRUE))[;]
+return (int : a)[;]
+}
+
+void function:
+BLOCK()
+{
+(void : Assignment # x := (int : 3))[;]
+{
+(void : Assignment # y := (int : 2))[;]
+(void : Assignment # z := (int : 1))[;]
+}
+}
+

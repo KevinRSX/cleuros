@@ -1,6 +1,6 @@
-type intop = Add | Sub | Mul | Div
+type intop = Add | Sub | Mul | Div | Mod
 type boolop =  Neq | Less | And | Or | Eq | Greater
-type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
+type bop = Add | Sub | Mul | Div | Mod | Neq | Less | And | Or | Eq | Greater
 
 type typ = Int | Bool | Void | Temp (* No Char/String support now *)
 
@@ -36,7 +36,8 @@ let string_of_bop = function
   | Sub -> "-"
   | Mul -> "*"
   | Div -> "/"
-  | Eq -> "=="
+  | Mod -> "%"
+  | Eq -> "="
   | Neq -> "!="
   | Less -> "<"
   | And -> "&&"
@@ -56,7 +57,6 @@ let rec string_of_expr = function
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-  (* TODO: change to sstmt list *)
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
