@@ -46,7 +46,7 @@ let verify_args fn arg_type_list tbl =
   | Some param_type_list -> if param_type_list = arg_type_list then ignore ()
     else raise (Failure ("For function call to " ^ fn ^ ", arguments type (" ^ (String.concat ", "
     (List.map string_of_typ arg_type_list)) ^ ") don't match parameters (" ^
-    (String.concat ", " (List.map string_of_typ arg_type_list)) ^ ")"))
+    (String.concat ", " (List.map string_of_typ param_type_list)) ^ ")"))
 
 let set_func_param_table fn param_list tbl =
   let curr = Hashtbl.find_opt tbl fn in
