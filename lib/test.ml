@@ -1,21 +1,7 @@
 open Cleuros 
 open Test_helper
+open Semant
 
-(* let get_result progStr = *)
-(*   let lexbuf = Lexing.from_string progStr in *)
-(*   let prog = Parser.program Scanner.tokenize lexbuf in *)
-(*   Cleuros.eval_program prog *)
-
-let print_parsed progstr =
-  let lexbuf = Lexing.from_string progstr in
-  let prog = Parser.program Scanner.tokenize lexbuf in
-  print_endline (Ast.string_of_prog prog)
-
-let progstr_from_file path =
-  let ch = open_in path in
-  let s = really_input_string ch (in_channel_length ch) in
-  close_in ch;
-  s
 
 let eval_test =
   (* let result = get_result "3\n" in
@@ -61,6 +47,8 @@ let _ =
   else
   (
     let s =  progstr_from_file Sys.argv.(1) in
-    print_parsed s;
+    let ast = get_ast s in
+    print_endline (Sast.string_of_sprogram (check_func_list ast));
+    (* print_parsed s; *)
   )
 

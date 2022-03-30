@@ -4,6 +4,8 @@
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
+%token INT BOOL
+%token <bool> BOOLVAR
 %token <int> LITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
@@ -28,13 +30,27 @@ fdecls:
 | fdecl fdecls { $1 :: $2 }
 ;
 
-fdecl: 
+typ:
+| INT   { Int }
+| BOOL  { Bool }
+
+fdecl:
 FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
 {
     {
-        fname = $1; 
-        args = $3; 
-        body = $6;
+        rtyp = Void;
+        fname = $1;
+        args = $3;
+        body = List.rev $6;
+    }
+}
+| typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+{
+    {
+        rtyp = $1;
+        fname = $2;
+        args = $4;
+        body = List.rev $7;
     }
 }
 ;
@@ -56,13 +72,12 @@ stmt_list:
 ;
 
 
-/* if-else only supports one statement at this moment and is bounded to else
-   if-else and while also must be wrapped with braces */
+/* if-else are bound at this point */
 stmt:
 | expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block($2) }
-| IF expr LBRACE stmt RBRACE ELSE LBRACE stmt RBRACE { If($2, $4, $8)}
-| WHILE expr LBRACE stmt RBRACE { While($2, $4)}
+| IF expr stmt ELSE stmt { If($2, $3, $5) }
+| WHILE expr stmt { While($2, $3) }
 | RETURN expr SEMI { Return($2)}
 ;
 
@@ -75,6 +90,7 @@ expr:
 | expr GREATER expr   { Binop($1, Greater, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
+| BOOLVAR             { BLit($1) }
 | VARIABLE EQUAL expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}

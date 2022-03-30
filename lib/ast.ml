@@ -1,4 +1,8 @@
+type intop = Add | Sub | Mul | Div
+type boolop =  Neq | Less | And | Or | Eq | Greater
 type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
+
+type typ = Int | Bool | Void | Temp (* No Char/String support now *)
 
 type expr =
     Binop of expr * bop * expr
@@ -17,10 +21,11 @@ type stmt =
   | Return of expr
 
 type func_def = { 
+    rtyp : typ;
     fname : string; 
     args : string list; 
     body : stmt list;
-  }
+}
 
 type program = func_def list
 
@@ -49,11 +54,19 @@ let rec string_of_expr = function
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
   | Block(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+  (* TODO: change to sstmt list *)
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
 
+let string_of_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Void -> "void"
+  | Temp -> "Temp"
+
 let string_of_func_def fdecl = 
+  string_of_typ fdecl.rtyp ^ " function:\n" ^
   fdecl.fname ^ "(" ^ (String.concat ", " fdecl.args) ^ ")\n{\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"

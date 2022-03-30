@@ -31,3 +31,6 @@ _opam/
 _perf 
 *.corrected
 *.native
+
+# vim swap files
+*.swp
