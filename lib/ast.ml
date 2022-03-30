@@ -37,7 +37,7 @@ let string_of_bop = function
   | Mul -> "*"
   | Div -> "/"
   | Mod -> "%"
-  | Eq -> "=="
+  | Eq -> "="
   | Neq -> "!="
   | Less -> "<"
   | And -> "&&"

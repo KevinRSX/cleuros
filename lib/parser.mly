@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE MOD EQUAL EOF
+%token PLUS MINUS TIMES DIVIDE MOD EQUAL ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
@@ -11,9 +11,9 @@
 %token <string> FUNCTION
 
 %left SEMI
-%right EQUAL
+%right ASNTO
 
-%left LESS GREATER
+%left LESS GREATER EQUAL
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 
@@ -86,17 +86,20 @@ stmt:
 ;
 
 expr:
+/* arithmetic */
 | expr PLUS   expr    { Binop($1, Add, $3) }
 | expr MINUS  expr    { Binop($1, Sub, $3) }
 | expr TIMES  expr    { Binop($1, Mul, $3) }
 | expr DIVIDE expr    { Binop($1, Div, $3) }
 | expr MOD    expr    { Binop($1, Mod, $3) }
-| expr LESS   expr    { Binop($1, Less, $3)}
-| expr GREATER expr   { Binop($1, Greater, $3) }
+/* logical */
+| expr LESS     expr  { Binop($1, Less, $3) }
+| expr GREATER  expr  { Binop($1, Greater, $3) }
+| expr EQUAL    expr  { Binop($1, Eq, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | BOOLVAR             { BLit($1) }
-| VARIABLE EQUAL expr { Asn($1, $3) }
+| VARIABLE ASNTO expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
 ;

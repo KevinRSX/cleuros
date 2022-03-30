@@ -10,6 +10,7 @@ rule tokenize = parse
 (* separators *)
 | ';'  { SEMI }
 | '='  { EQUAL }
+| ":=" { ASNTO }
 | '+'  { PLUS }
 | '-'  { MINUS }
 | '*'  { TIMES }

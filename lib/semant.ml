@@ -92,7 +92,7 @@ let rec check_func_list all_func =
     let rec check_stmt cfunc = function
       | Block sub_stmts -> SBlock (check_stmt_list cfunc sub_stmts)
       | Expr expr -> SExpr (check_expr cfunc expr)
-      (* TODO: probably add boolean support for condition of if *)
+      (* TODO: need to check whether expr of SIf/SWhile is boolean *)
       | If (expr, stmt1, stmt2) -> SIf (check_expr cfunc expr, check_stmt cfunc stmt1,
         check_stmt cfunc stmt2)
       | While (expr, stmt) -> SWhile (check_expr cfunc expr, check_stmt cfunc stmt)

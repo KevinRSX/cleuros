@@ -1,31 +1,31 @@
 # valid
 int MAIN()
 {
-	x = 4; # SAsn
+	x := 4; # SAsn
 	x; # Svar
 	3; # SLit
-	a = TRUE; # SBLit
-	y = x + 1; # SAsn
+	a := TRUE; # SBLit
+	y := x + 1; # SAsn
 
-	q = x > y;
-	q = FALSE;
+	q := x > y;
+	q := FALSE;
 
 	if x > y {
-		x = 1;
+		x := 1;
 	}
 	else {
-		z = STUB();
-		b = 1;
+		z := STUB();
+		b := 1;
 	}
 
 	exchange x with y; # SSwap
 	BLOCK(); # SCall w/o args
 
-	myIntVar = 5 + x + PLAY(x, q); # SCall w/ args
+	myIntVar := 5 + x + PLAY(x, q); # SCall w/ args
 	
 	while x > 0 {
-		x = 1;
-		y = 9;
+		x := 1;
+		y := 9;
 	}
 }
 
@@ -36,16 +36,16 @@ int STUB()
 
 int PLAY(a be int, b be bool)
 {
-	a = 1;
-	b = TRUE;
+	a := 1;
+	b := TRUE;
 	return a;
 }
 
 BLOCK()
 {
-	x = 3;
+	x := 3;
 	{
-		y = 2;
-		z = 1;
+		y := 2;
+		z := 1;
 	}
 }
