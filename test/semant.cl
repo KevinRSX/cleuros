@@ -19,11 +19,9 @@ int MAIN()
 	}
 
 	exchange x with y; # SSwap
-	BLOCK(x, 2, 3); # SCall
+	BLOCK(); # SCall w/o args
 
-	STUB(); #SCall
-
-	myIntVar = 5 + x + STUB();
+	myIntVar = 5 + x + PLAY(x, q); # SCall w/ args
 	
 	while x > 0 {
 		x = 1;
@@ -38,6 +36,9 @@ int STUB()
 
 int PLAY(a be int, b be bool)
 {
+	a = 1;
+	b = TRUE;
+	return a;
 }
 
 BLOCK()

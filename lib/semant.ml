@@ -115,7 +115,11 @@ let rec check_func_list all_func =
   | [] -> []
   | f::fl -> 
       set_fn f.fname f.rtyp f_sym_table;
-      (*TODO: set parameters to local variables *)
+      let rec set_arg_ids = function
+        | [] -> ignore ()
+        | (typ, id) :: idl -> (set_id f.fname id typ f_sym_table); set_arg_ids
+          idl in
+      set_arg_ids f.args;
       set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
                                       f_param_table;
       check_func f :: check_func_list fl
