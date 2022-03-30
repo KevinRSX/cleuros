@@ -7,6 +7,9 @@ int MAIN()
 	a = TRUE; # SBLit
 	y = x + 1; # SAsn
 
+	q = x > y;
+	q = FALSE;
+
 	if x > y {
 		x = 1;
 	}
@@ -18,6 +21,10 @@ int MAIN()
 	exchange x with y; # SSwap
 	BLOCK(x, 2, 3); # SCall
 
+	STUB(); #SCall
+
+	myIntVar = 5 + x + STUB();
+	
 	while x > 0 {
 		x = 1;
 		y = 9;

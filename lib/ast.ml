@@ -1,3 +1,5 @@
+type intop = Add | Sub | Mul | Div
+type boolop =  Neq | Less | And | Or | Eq | Greater
 type bop = Add | Sub | Mul | Div | Neq | Less | And | Or | Eq | Greater
 
 type typ = Int | Bool | Void | Temp (* No Char/String support now *)
