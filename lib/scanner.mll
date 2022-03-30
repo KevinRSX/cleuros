@@ -7,7 +7,7 @@ let letter = lower | upper
 
 rule tokenize = parse
   [' ' '\t' '\r' '\n'] { tokenize lexbuf }
-(* separators *)
+(* separators. TODO: GTE, LTE *)
 | ';'  { SEMI }
 | '='  { EQUAL }
 | ":=" { ASNTO }
@@ -40,7 +40,7 @@ rule tokenize = parse
 | "TRUE"      { BOOLVAR(true) }
 | "FALSE"     { BOOLVAR(false) }
 | digit+ as lit { LITERAL(int_of_string lit) }
-| lower(letter | digit)* as id { VARIABLE(id) }
+| lower(letter | digit | '_')* as id { VARIABLE(id) }
 | upper(upper | '-')+ as func { FUNCTION(func) }
 | eof { EOF }
 
