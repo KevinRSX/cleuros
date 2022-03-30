@@ -20,7 +20,7 @@ type sstmt =
 type sfunc_def = { 
     srtyp : typ;
     sfname : string; 
-    sargs : string list; 
+    sargs : param_type list;
     sbody : sstmt list;
 }
 
@@ -50,7 +50,7 @@ let rec string_of_sstmt = function
 
 let string_of_sfdecl sfdecl =
   string_of_typ sfdecl.srtyp ^ " function:\n" ^
-  sfdecl.sfname ^ "(" ^ (String.concat ", " sfdecl.sargs) ^ ")\n{\n" ^
+  sfdecl.sfname ^ "(" ^ (String.concat ", " (List.map string_of_param_type sfdecl.sargs)) ^ ")\n{\n" ^
   String.concat "" (List.map string_of_sstmt (List.rev sfdecl.sbody)) ^
   "}\n"
 
