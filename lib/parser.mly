@@ -41,7 +41,7 @@ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
         rtyp = Void;
         fname = $1;
         args = $3;
-        body = $6;
+        body = List.rev $6;
     }
 }
 | typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
@@ -50,7 +50,7 @@ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
         rtyp = $1;
         fname = $2;
         args = $4;
-        body = $7;
+        body = List.rev $7;
     }
 }
 ;

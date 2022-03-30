@@ -51,7 +51,7 @@ let rec string_of_sstmt = function
 let string_of_sfdecl sfdecl =
   string_of_typ sfdecl.srtyp ^ " function:\n" ^
   sfdecl.sfname ^ "(" ^ (String.concat ", " sfdecl.sargs) ^ ")\n{\n" ^
-  String.concat "" (List.map string_of_sstmt sfdecl.sbody) ^
+  String.concat "" (List.map string_of_sstmt (List.rev sfdecl.sbody)) ^
   "}\n"
 
 let string_of_sprogram prog =

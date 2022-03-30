@@ -1,7 +1,8 @@
 # valid
 int MAIN()
 {
-	x; # SVar
+	x = 4; # SAsn
+	x; # Svar
 	3; # SLit
 	a = TRUE; # SBLit
 	y = x + 1; # SAsn
@@ -10,8 +11,8 @@ int MAIN()
 		x = 1;
 	}
 	else {
-		y = STUB();
-		y = 1;
+		z = STUB();
+		b = 1;
 	}
 
 	exchange x with y; # SSwap
@@ -21,7 +22,6 @@ int MAIN()
 		x = 1;
 		y = 9;
 	}
-	return z;
 }
 
 int STUB()
