@@ -66,8 +66,8 @@ let rec check_func_list all_func =
     let err = "illegal binary op" in 
     if t1 = t2 then 
       let t = match bop with 
-        Add | Sub | Mul | Div when t1 = Int -> Int 
-      | Add | Sub | Mul | Div when t1 = Bool -> raise (Failure err)
+        Add | Sub | Mul | Div | Mod when t1 = Int -> Int 
+      | Add | Sub | Mul | Div | Mod when t1 = Bool -> raise (Failure err)
       | Neq | Less | And | Or | Eq | Greater -> Bool
       | _ -> raise (Failure err)
       in

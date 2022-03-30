@@ -14,6 +14,7 @@ rule tokenize = parse
 | '-'  { MINUS }
 | '*'  { TIMES }
 | '/'  { DIVIDE }
+| '%'  { MOD }
 | '('  { LPAREN }
 | ')'  { RPAREN }
 | '{'  { LBRACE }

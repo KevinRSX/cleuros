@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE EQUAL EOF
+%token PLUS MINUS TIMES DIVIDE MOD EQUAL EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
@@ -15,7 +15,7 @@
 
 %left LESS GREATER
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MOD
 
 %start program
 %type <Ast.program> program
@@ -90,7 +90,8 @@ expr:
 | expr MINUS  expr    { Binop($1, Sub, $3) }
 | expr TIMES  expr    { Binop($1, Mul, $3) }
 | expr DIVIDE expr    { Binop($1, Div, $3) }
-| expr LESS expr      { Binop($1, Less, $3)}
+| expr MOD    expr    { Binop($1, Mod, $3) }
+| expr LESS   expr    { Binop($1, Less, $3)}
 | expr GREATER expr   { Binop($1, Greater, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
