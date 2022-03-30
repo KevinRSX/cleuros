@@ -38,7 +38,6 @@ int STUB()
 
 int PLAY(a be int, b be bool)
 {
-	return 1; # use a after semant check args
 }
 
 BLOCK()
