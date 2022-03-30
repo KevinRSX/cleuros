@@ -1,11 +1,27 @@
 # Development
 
-- [ ] Support block statements in if-else: change the definition in AST
-- [ ] Unbound if and else, they should be able to use separately
-- [ ] Adjust the doc for the use of parenthesis. Do we really need to get rid of them?
+## Remaining work for frontend
 
+As of the submission of hello-world deliverable.
 
+### Delimitation
 
-## Notes
+- Too complicated to support newline-delimited statements and indentation-based code blocks as in the LRM. So temporarily switched to semicolon-delimited statements and brace-based code blocks
 
-For each test program, please add a comment at the top `# valid` or `# invalid` to indicate if it is still a desired test for our current implementation.
+### Not-yet-implemented features
+
+Tokens:
+
+```
+binops: >=, <=, !=, and, or, exponential
+literals: char, string, array, custom type literals
+built-in: concat ... with ...
+control flow: for loop
+```
+
+Other features:
+
+- Declaration of char, string, array, and custom type
+- Mandate the existence of `MAIN()`
+- Scope **inside** functions
+- Built-in functions, including type checking, type casting, and I/O. This may also mean we need to support function overloading. Should we implement them in code generation or a standard library?
