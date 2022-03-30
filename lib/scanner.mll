@@ -30,6 +30,7 @@ rule tokenize = parse
 | "else"      { ELSE }
 | "while"     { WHILE }
 | "return"    { RETURN }
+| "be"        { BE }
 (* types. TODO: char, string, array, custom type *)
 | "int"       { INT }
 | "bool"      { BOOL }

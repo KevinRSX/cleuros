@@ -4,8 +4,12 @@
 First, change to the lib directory `cd lib`
 
 
-To build: `make` 
+To build: `make build` 
 
-To test:`./test.native <source-file>`
+To test the scanned, parsed, and semantic checked program:
 
-To clean: `make clean`
+- `./test.native <source-file>` after building, or
+- `make`, or
+- `make test`
+
+To clean compilation artifacts: `make clean`

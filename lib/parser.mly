@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE EQUAL EOF
-%token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH
+%token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
 %token INT BOOL
@@ -55,16 +55,20 @@ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
 }
 ;
 
-/* formals_opt */
+/* function arguments */
 formals_opt:
   /*nothing*/ { [] }
   | formals_list { $1 }
 ;
 
 formals_list:
-  VARIABLE { [$1] }
-  | VARIABLE COMMA formals_list { $1::$3 }
+  typ_binding { [$1] }
+  | typ_binding COMMA formals_list { $1::$3 }
 ;
+
+typ_binding:
+  VARIABLE BE typ { ($3, $1) }
+/* end function arguments */
 
 stmt_list:
 /* nothing */ { [] }

@@ -20,10 +20,12 @@ type stmt =
   | While of expr * stmt
   | Return of expr
 
+type param_type = typ * string
+
 type func_def = { 
     rtyp : typ;
     fname : string; 
-    args : string list; 
+    args : param_type list;
     body : stmt list;
 }
 
@@ -65,9 +67,12 @@ let string_of_typ = function
   | Void -> "void"
   | Temp -> "Temp"
 
+let string_of_param_type = function
+  | (typ, param) -> "Param # (" ^ string_of_typ typ ^ ": " ^ param ^ ")"
+
 let string_of_func_def fdecl = 
   string_of_typ fdecl.rtyp ^ " function:\n" ^
-  fdecl.fname ^ "(" ^ (String.concat ", " fdecl.args) ^ ")\n{\n" ^
+  fdecl.fname ^ "(" ^ (String.concat ", " (List.map string_of_param_type fdecl.args)) ^ ")\n{\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
