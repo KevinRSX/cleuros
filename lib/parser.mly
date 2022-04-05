@@ -1,6 +1,6 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE MOD EQUAL ASNTO EOF
+%token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
 %token RETURN
@@ -13,7 +13,7 @@
 %left SEMI
 %right ASNTO
 
-%left LESS GREATER EQUAL
+%left LESS GREATER ISEQUALTO
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 
@@ -95,7 +95,7 @@ expr:
 /* logical */
 | expr LESS     expr  { Binop($1, Less, $3) }
 | expr GREATER  expr  { Binop($1, Greater, $3) }
-| expr EQUAL    expr  { Binop($1, Eq, $3) }
+| expr ISEQUALTO    expr  { Binop($1, Eq, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | BOOLVAR             { BLit($1) }
