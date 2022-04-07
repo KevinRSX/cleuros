@@ -26,7 +26,6 @@ rule tokenize = parse
     Stack.push num_tabs tab_counts;
     print_endline ("NEWLINE");
     NEWLINE
-    
   )
   else if curr_tab_count < num_tabs then 
   (
@@ -68,10 +67,10 @@ rule tokenize = parse
 | "with"      { WITH }
 | "be"        { BE }
 (*Control flow*)
-| "if"        { IF }
+| "if"        { print_endline "IF";IF }
 | "else"      { ELSE }
 | "while"     { WHILE }
-| "return"    { RETURN }
+| "return"    { print_endline "RETURN";RETURN }
 (* types. TODO: char, string, array, custom type *)
 | "int"       { INT }
 | "bool"      { BOOL }
@@ -95,9 +94,9 @@ and comment = parse
 {
 let next_token lexbuf = 
 	if Queue.is_empty tokens then 
-    (print_endline "empty";
+    (
     tokenize lexbuf )
   else 
-    (print_endline "not empty";
+    (
     Queue.take tokens)
 }

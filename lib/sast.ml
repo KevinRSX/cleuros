@@ -42,7 +42,7 @@ let rec string_of_sexpr (t, e) =
 
 let rec string_of_sstmt = function
   | SExpr(e) -> string_of_sexpr e ^ "[;]\n"
-  | SBlock(sstmts) -> "{\n" ^ String.concat "" (List.map string_of_sstmt sstmts) ^ "}\n"
+  | SBlock(sstmts) -> "{\n" ^ String.concat "" (List.map string_of_sstmt (List.rev sstmts)) ^ "}\n"
   | SIf(cond, sstmt1, sstmt2) ->
       "if " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt1 ^ "else\n" ^
       string_of_sstmt sstmt2

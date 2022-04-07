@@ -42,16 +42,16 @@ FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
         rtyp = Void;
         fname = $1;
         args = $3;
-        body = List.rev $8;
+        body = $8;
     }
 }
-| typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+| typ FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = $1;
         fname = $2;
         args = $4;
-        body = List.rev $7;
+        body = $9;
     }
 }
 ;
@@ -80,11 +80,9 @@ stmt_list:
 /* if-else are bound at this point */
 stmt:
 | expr NEWLINE { Expr($1) }
-| expr SEMI { Expr($1) }
-| LBRACE stmt_list RBRACE { Block($2) }
-| IF expr stmt ELSE stmt { If($2, $3, $5) }
-| WHILE expr stmt { While($2, $3) }
-| RETURN expr SEMI { Return($2)}
+| IF expr COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block []) }
+| WHILE expr COLON NEWLINE INDENT stmt_list DEDENT { While($2, Block ($6)) }
+| RETURN expr NEWLINE { Return($2)}
 ;
 
 expr:
