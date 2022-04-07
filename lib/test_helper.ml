@@ -15,7 +15,7 @@ let print_parsed progstr =
 
 let get_ast progstr =
   let lexbuf = Lexing.from_string progstr in
-  Parser.program Scanner.tokenize lexbuf
+  Parser.program Scanner.next_token lexbuf
 
 let progstr_from_file path =
   let ch = open_in path in

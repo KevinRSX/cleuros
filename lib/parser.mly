@@ -3,6 +3,7 @@
 %token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token INDENT DEDENT COLON NEWLINE
 %token RETURN
 %token INT BOOL
 %token <bool> BOOLVAR
@@ -27,7 +28,7 @@ program: fdecls EOF { $1 }
 
 fdecls: 
 /* nothing */ {[]}
-| fdecl fdecls { $1 :: $2 }
+| fdecls fdecl  { $2::$1 }
 ;
 
 typ:
@@ -35,13 +36,13 @@ typ:
 | BOOL  { Bool }
 
 fdecl:
-FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = Void;
         fname = $1;
         args = $3;
-        body = List.rev $6;
+        body = List.rev $8;
     }
 }
 | typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
@@ -72,12 +73,13 @@ typ_binding:
 
 stmt_list:
 /* nothing */ { [] }
-| stmt stmt_list { $1::$2 }
+| stmt_list stmt  { $2::$1 }
 ;
 
 
 /* if-else are bound at this point */
 stmt:
+| expr NEWLINE { Expr($1) }
 | expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block($2) }
 | IF expr stmt ELSE stmt { If($2, $3, $5) }

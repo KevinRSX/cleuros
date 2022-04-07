@@ -1,4 +1,12 @@
-{ open Parser }
+{
+  open Parser 
+
+  let tab_counts = Stack.of_seq (Seq.return 0)
+  let tokens = Queue.create () 
+
+  let rec enqueue token n = 
+    if n > 0 then (Queue.add token tokens; enqueue token (n-1))
+}
 
 let digit = ['0'-'9']
 let lower = ['a'-'z']
@@ -6,8 +14,32 @@ let upper = ['A'-'Z']
 let letter = lower | upper
 
 rule tokenize = parse
-  [' ' '\t' '\r' '\n'] { tokenize lexbuf }
-(* separators. TODO: GTE, LTE *)
+  [' ' '\r' ] { tokenize lexbuf }
+| ('\n')*('\t'* as tabs) {
+  let num_tabs = String.length tabs in 
+  let curr_tab_count = Stack.top tab_counts in
+  if curr_tab_count > num_tabs then 
+  (
+    print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
+    enqueue DEDENT ((Stack.pop tab_counts) - num_tabs);
+    print_endline ("DEDENT");
+    Stack.push num_tabs tab_counts;
+    print_endline ("NEWLINE");
+    NEWLINE
+    
+  )
+  else if curr_tab_count < num_tabs then 
+  (
+    print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
+    enqueue INDENT (num_tabs - curr_tab_count);
+    print_endline ("INDENT");
+    Stack.push num_tabs tab_counts; 
+    print_endline ("NEWLINE");
+    NEWLINE
+  )
+  else 
+    (print_endline ("NEWLINE"); NEWLINE) 
+}
 (*Math*)
 | '+'  { PLUS }
 | '-'  { MINUS }
@@ -22,11 +54,12 @@ rule tokenize = parse
 | '='  { ISEQUALTO }
 (*Punctuation*)
 | ';'  { SEMI }
-| '('  { LPAREN }
-| ')'  { RPAREN }
+| '('  { print_endline "LPAREN"; LPAREN }
+| ')'  { print_endline "RPAREN"; RPAREN }
 | '{'  { LBRACE }
 | '}'  { RBRACE }
 | ','  { COMMA }
+| ':'  { print_endline "COLON";COLON }
 (*Comment*)
 | '#'  { comment lexbuf }
 (*Built-in functions*)
@@ -49,10 +82,22 @@ rule tokenize = parse
 (*Variables*)
 | lower(letter | digit | '_')* as id { VARIABLE(id) }
 (*Functions*)
-| upper(upper | '-')+ as func { FUNCTION(func) }
+| upper(upper | '-')+ as func {
+    print_endline func;
+   FUNCTION(func) }
 | eof { EOF }
 | _ as unchar { raise (Failure("Scanner error - Unknown character: " ^ Char.escaped unchar))}
 
 and comment = parse 
   '\n' { tokenize lexbuf }
 | _    { comment lexbuf}
+
+{
+let next_token lexbuf = 
+	if Queue.is_empty tokens then 
+    (print_endline "empty";
+    tokenize lexbuf )
+  else 
+    (print_endline "not empty";
+    Queue.take tokens)
+}
