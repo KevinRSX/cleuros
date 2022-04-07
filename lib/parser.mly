@@ -81,6 +81,7 @@ stmt_list:
 stmt:
 | expr NEWLINE { Expr($1) }
 | IF expr COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block []) }
+| IF expr COLON NEWLINE INDENT stmt_list DEDENT ELSE COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block $12) }
 | WHILE expr COLON NEWLINE INDENT stmt_list DEDENT { While($2, Block ($6)) }
 | RETURN expr NEWLINE { Return($2)}
 ;

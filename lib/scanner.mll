@@ -68,7 +68,7 @@ rule tokenize = parse
 | "be"        { BE }
 (*Control flow*)
 | "if"        { print_endline "IF";IF }
-| "else"      { ELSE }
+| "else"      { print_endline "ELSE";ELSE }
 | "while"     { WHILE }
 | "return"    { print_endline "RETURN";RETURN }
 (* types. TODO: char, string, array, custom type *)
