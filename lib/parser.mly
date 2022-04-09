@@ -1,8 +1,9 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE MOD EQUAL ASNTO EOF
+%token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token INDENT DEDENT COLON NEWLINE
 %token RETURN
 %token INT BOOL
 %token <bool> BOOLVAR
@@ -13,7 +14,7 @@
 %left SEMI
 %right ASNTO
 
-%left LESS GREATER EQUAL
+%left LESS GREATER ISEQUALTO
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 
@@ -27,7 +28,7 @@ program: fdecls EOF { $1 }
 
 fdecls: 
 /* nothing */ {[]}
-| fdecl fdecls { $1 :: $2 }
+| fdecls fdecl  { $2::$1 }
 ;
 
 typ:
@@ -35,22 +36,22 @@ typ:
 | BOOL  { Bool }
 
 fdecl:
-FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = Void;
         fname = $1;
         args = $3;
-        body = List.rev $6;
+        body = $8;
     }
 }
-| typ FUNCTION LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+| typ FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = $1;
         fname = $2;
         args = $4;
-        body = List.rev $7;
+        body = $9;
     }
 }
 ;
@@ -72,17 +73,17 @@ typ_binding:
 
 stmt_list:
 /* nothing */ { [] }
-| stmt stmt_list { $1::$2 }
+| stmt_list stmt  { $2::$1 }
 ;
 
 
 /* if-else are bound at this point */
 stmt:
-| expr SEMI { Expr($1) }
-| LBRACE stmt_list RBRACE { Block($2) }
-| IF expr stmt ELSE stmt { If($2, $3, $5) }
-| WHILE expr stmt { While($2, $3) }
-| RETURN expr SEMI { Return($2)}
+| expr NEWLINE { Expr($1) }
+| IF expr COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block []) }
+| IF expr COLON NEWLINE INDENT stmt_list DEDENT ELSE COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block $12) }
+| WHILE expr COLON NEWLINE INDENT stmt_list DEDENT { While($2, Block ($6)) }
+| RETURN expr NEWLINE { Return($2)}
 ;
 
 expr:
@@ -95,7 +96,7 @@ expr:
 /* logical */
 | expr LESS     expr  { Binop($1, Less, $3) }
 | expr GREATER  expr  { Binop($1, Greater, $3) }
-| expr EQUAL    expr  { Binop($1, Eq, $3) }
+| expr ISEQUALTO    expr  { Binop($1, Eq, $3) }
 | VARIABLE            { Var($1) }
 | LITERAL             { Lit($1) }
 | BOOLVAR             { BLit($1) }

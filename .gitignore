@@ -34,3 +34,4 @@ _perf
 
 # vim swap files
 *.swp
+.vscode
