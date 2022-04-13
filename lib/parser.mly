@@ -101,8 +101,9 @@ expr:
 | LITERAL             { Lit($1) }
 | BOOLVAR             { BLit($1) }
 | VARIABLE ASNTO expr { Asn($1, $3) }
-| EXCHANGE VARIABLE WITH VARIABLE {Swap($2, $4)}
+| EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
+| LPAREN expr RPAREN  { $2 }
 ;
 
 args_opt: 
