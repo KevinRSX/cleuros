@@ -10,6 +10,8 @@ MAIN():
 				y
 			else:
 				x
+	for a := 1 to 5: 
+		(3+5) * 15
 	while y: 
 		a := 15
 		a + 1 

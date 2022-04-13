@@ -107,6 +107,8 @@ let rec check_func_list all_func =
             ("Condition in while statement must be of type bool, but "
             ^ string_of_typ (expr_typ) ^ " is provided"))
           else SWhile (check_expr cfunc expr, check_stmt cfunc stmt)
+      | For (id, lo, hi, stmt) ->  
+          (set_id cfunc id Int f_sym_table; SFor (id, lo, hi, check_stmt cfunc stmt))
       | Return expr -> SReturn (check_expr cfunc expr)
     in
     match all_stmt with
