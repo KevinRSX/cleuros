@@ -5,7 +5,7 @@ MAIN():
 		3 + 5
 		x + x
 		while TRUE: 
-			x + x
+			x := (x + x) + (9 * 2)
 			if FALSE: 
 				y
 			else:
