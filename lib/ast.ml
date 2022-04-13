@@ -18,6 +18,7 @@ type stmt =
   | Expr of expr 
   | If of expr * stmt * stmt  
   | While of expr * stmt
+  | For of string * int * int * stmt  (*id, lo, hi, stmt*)
   | Return of expr
 
 type param_type = typ * string
@@ -60,6 +61,7 @@ let rec string_of_stmt = function
   | If(cond, stmt1, stmt2) -> "if " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt1 ^ "else\n" ^ string_of_stmt stmt2
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
+  | For(id, lo, hi, stmt) -> "for " ^ id ^ "= " ^ (string_of_int lo) ^ " to " ^ (string_of_int hi) ^ (string_of_stmt stmt)
 
 let string_of_typ = function
     Int -> "int"

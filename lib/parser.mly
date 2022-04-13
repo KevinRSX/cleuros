@@ -3,6 +3,7 @@
 %token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
 %token INT BOOL
@@ -36,22 +37,22 @@ typ:
 | BOOL  { Bool }
 
 fdecl:
-FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
+FUNCTION LPAREN formals_opt RPAREN NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = Void;
         fname = $1;
         args = $3;
-        body = $8;
+        body = $7;
     }
 }
-| typ FUNCTION LPAREN formals_opt RPAREN COLON NEWLINE INDENT stmt_list DEDENT
+| typ FUNCTION LPAREN formals_opt RPAREN NEWLINE INDENT stmt_list DEDENT
 {
     {
         rtyp = $1;
         fname = $2;
         args = $4;
-        body = $9;
+        body = $8;
     }
 }
 ;
@@ -80,9 +81,10 @@ stmt_list:
 /* if-else are bound at this point */
 stmt:
 | expr NEWLINE { Expr($1) }
-| IF expr COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block []) }
-| IF expr COLON NEWLINE INDENT stmt_list DEDENT ELSE COLON NEWLINE INDENT stmt_list DEDENT { If($2, Block $6, Block $12) }
-| WHILE expr COLON NEWLINE INDENT stmt_list DEDENT { While($2, Block ($6)) }
+| IF expr NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block []) }
+| IF expr NEWLINE INDENT stmt_list DEDENT ELSE NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block $10) }
+| WHILE expr NEWLINE INDENT stmt_list DEDENT { While($2, Block $5) }
+| FOR VARIABLE ASNTO LITERAL TO LITERAL NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
 | RETURN expr NEWLINE { Return($2)}
 ;
 

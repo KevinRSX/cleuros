@@ -70,6 +70,8 @@ rule tokenize = parse
 | "if"        { print_endline "IF";IF }
 | "else"      { print_endline "ELSE";ELSE }
 | "while"     { WHILE }
+| "for"       { FOR }
+| "to"        { TO }
 | "return"    { print_endline "RETURN";RETURN }
 (* types. TODO: char, string, array, custom type *)
 | "int"       { INT }
