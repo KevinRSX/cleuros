@@ -16,3 +16,6 @@ MAIN()
 		a := 15
 		a + 1 
 	return 2
+
+HELLO(x be int)
+	MAIN()

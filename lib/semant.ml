@@ -111,9 +111,7 @@ let rec check_func_list all_func =
           (set_id cfunc id Int f_sym_table; SFor (id, lo, hi, check_stmt cfunc stmt))
       | Return expr -> SReturn (check_expr cfunc expr)
     in
-    match all_stmt with
-    | [] -> []
-    | s::sl -> check_stmt cfunc s :: check_stmt_list cfunc sl
+    List.map (check_stmt cfunc) all_stmt
   in
 
   let check_func func =
@@ -128,11 +126,9 @@ let rec check_func_list all_func =
   | [] -> []
   | f::fl -> 
       set_fn f.fname f.rtyp f_sym_table;
-      let rec set_arg_ids = function
-        | [] -> ignore ()
-        | (typ, id) :: idl -> (set_id f.fname id typ f_sym_table); set_arg_ids
-          idl in
-      set_arg_ids f.args;
+      let set_arg_ids (typ, id) = set_id f.fname id typ f_sym_table in
+      ignore (List.map set_arg_ids f.args);
       set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
                                       f_param_table;
-      check_func f :: check_func_list fl
+      let checked_f = check_func f in
+      checked_f :: check_func_list fl;

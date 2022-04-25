@@ -10,7 +10,7 @@ let test_int (actual : int) (expected : int) =
 
 let print_parsed progstr =
   let lexbuf = Lexing.from_string progstr in
-  let prog = Parser.program Scanner.tokenize lexbuf in
+  let prog = Parser.program Scanner.next_token lexbuf in
   print_endline (Ast.string_of_prog prog)
 
 let get_ast progstr =

@@ -29,7 +29,7 @@ program: fdecls EOF { $1 }
 
 fdecls: 
 /* nothing */ {[]}
-| fdecls fdecl  { $2::$1 }
+| fdecl fdecls  { $1::$2 }
 ;
 
 typ:
@@ -74,7 +74,7 @@ typ_binding:
 
 stmt_list:
 /* nothing */ { [] }
-| stmt_list stmt  { $2::$1 }
+| stmt stmt_list  { $1::$2 }
 ;
 
 
