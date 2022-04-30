@@ -2,12 +2,13 @@ type intop = Add | Sub | Mul | Div | Mod
 type boolop =  Neq | Less | And | Or | Eq | Greater
 type bop = Add | Sub | Mul | Div | Mod | Neq | Less | And | Or | Eq | Greater
 
-type typ = Int | Bool | Void | Temp (* No Char/String support now *)
+type typ = Int | Float | Bool | Void | Temp (* No Char/String support now *)
 
 type expr =
     Binop of expr * bop * expr
   | BLit of bool
-  | Lit of int
+  | ILit of int
+  | FLit of float
   | Asn of string * expr
   | Var of string
   | Swap of string * string
@@ -49,7 +50,8 @@ let rec string_of_expr = function
     Binop(e1, b, e2) -> string_of_expr e1 ^ string_of_bop b ^ string_of_expr e2
   | BLit(true) -> "true"
   | BLit(false) -> "false"
-  | Lit(l) -> string_of_int l 
+  | ILit(l) -> string_of_int l 
+  | FLit(l) -> string_of_float l
   | Asn(id, e) -> id ^ " = " ^ string_of_expr e 
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
@@ -65,6 +67,7 @@ let rec string_of_stmt = function
 
 let string_of_typ = function
     Int -> "int"
+  | Float -> "float"
   | Bool -> "bool"
   | Void -> "void"
   | Temp -> "Temp"

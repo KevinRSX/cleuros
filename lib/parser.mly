@@ -6,9 +6,10 @@
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
-%token INT BOOL
+%token INT BOOL FLOAT
 %token <bool> BOOLVAR
-%token <int> LITERAL
+%token <int> INTLITERAL
+%token <float> FLOATLITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
 
@@ -35,6 +36,7 @@ fdecls:
 typ:
 | INT   { Int }
 | BOOL  { Bool }
+| FLOAT { Float }
 
 fdecl:
 FUNCTION LPAREN formals_opt RPAREN NEWLINE INDENT stmt_list DEDENT
@@ -84,7 +86,7 @@ stmt:
 | IF expr NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block []) }
 | IF expr NEWLINE INDENT stmt_list DEDENT ELSE NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block $10) }
 | WHILE expr NEWLINE INDENT stmt_list DEDENT { While($2, Block $5) }
-| FOR VARIABLE ASNTO LITERAL TO LITERAL NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
+| FOR VARIABLE ASNTO INTLITERAL TO INTLITERAL NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
 | RETURN expr NEWLINE { Return($2)}
 ;
 
@@ -96,11 +98,12 @@ expr:
 | expr DIVIDE expr    { Binop($1, Div, $3) }
 | expr MOD    expr    { Binop($1, Mod, $3) }
 /* logical */
-| expr LESS     expr  { Binop($1, Less, $3) }
-| expr GREATER  expr  { Binop($1, Greater, $3) }
-| expr ISEQUALTO    expr  { Binop($1, Eq, $3) }
+| expr LESS expr      { Binop($1, Less, $3) }
+| expr GREATER expr   { Binop($1, Greater, $3) }
+| expr ISEQUALTO expr { Binop($1, Eq, $3) }
 | VARIABLE            { Var($1) }
-| LITERAL             { Lit($1) }
+| INTLITERAL          { ILit($1) }
+| FLOATLITERAL        { FLit($1) }
 | BOOLVAR             { BLit($1) }
 | VARIABLE ASNTO expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}
