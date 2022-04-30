@@ -75,7 +75,7 @@ rule tokenize = parse
 | "int"       { INT }
 | "bool"      { BOOL }
 | "float"     { FLOAT }
-(* literals TODO: char literal, string literal, float, list *)
+(* literals TODO: char literal, string literal, list *)
 | "TRUE"      { BOOLVAR(true) }
 | "FALSE"     { BOOLVAR(false) }
 | digit+ as lit { INTLITERAL(int_of_string lit) }

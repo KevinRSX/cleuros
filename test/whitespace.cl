@@ -1,5 +1,6 @@
 MAIN()
 	x := 3 #comment
+	f := 3.5
 	y := TRUE
 	if y 
 		3 + 5
@@ -17,5 +18,5 @@ MAIN()
 		a + 1 
 	return 2
 
-HELLO(x be int)
+HELLO(x be float)
 	MAIN()
