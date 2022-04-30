@@ -15,3 +15,5 @@ Usage: ./cleuros.native [-a|-s|-l] <source.cl>
 ```
 
 You can also `make llvm` or `make sast` or `make ast` to run specific test
+
+To run the LLVM IR, `lli <generated_file>`.
