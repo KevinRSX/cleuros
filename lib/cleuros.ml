@@ -1,5 +1,7 @@
 open Test_helper
 open Semant
+open Irgen
+
 
 let str_parsing_test _ = (* Add _ to stop it from printing *)
   print_endline "==========PARSING STRINGS TEST START==========";
@@ -16,7 +18,12 @@ let _ =
   (
     let s =  progstr_from_file Sys.argv.(1) in
     let ast = get_ast s in
-    print_endline (Sast.string_of_sprogram (check_func_list ast));
+    let sast = check_func_list ast in
+    print_endline (L.string_of_llmodule (translate sast));
+    (* print the SAST for front-end debugging purposes *)
+    (* print_endline (Sast.string_of_sprogram (check_func_list ast)); *)
+
+    (* print the untyped AST for front-end debugging purposes*)
     (* print_parsed s; *)
   )
 
