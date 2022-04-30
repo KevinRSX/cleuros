@@ -3,27 +3,26 @@ open Semant
 open Irgen
 
 
-let str_parsing_test _ = (* Add _ to stop it from printing *)
-  print_endline "==========PARSING STRINGS TEST START==========";
-  print_parsed "MAIN()\n{\n}\n";
-  print_parsed "MAIN(x)\n{\n x = 5\n x=x+1\n return x\n}\n";
-  print_endline "==========PARSING STRINGS TEST END==========";
-  ()
+type action = Ast | Sast | LLVM_IR
 
-let usage = "Usage: " ^ Sys.argv.(0) ^ " <input_file>"
+let usage = "Usage: " ^ Sys.argv.(0) ^ " [-a|-s|-l] <source.cl>"
 
-let _ =
-  if Array.length Sys.argv != 2 then (print_endline usage; exit (-1);)
-  else
-  (
-    let s =  progstr_from_file Sys.argv.(1) in
-    let ast = get_ast s in
-    let sast = check_func_list ast in
-    (*print_endline (L.string_of_llmodule (translate sast));*)
-    (* print the SAST for front-end debugging purposes *)
-    print_endline (Sast.string_of_sprogram sast);
+let () =
+  (* Command line arg parsing borrowed from MicroC *)
+  let action = ref LLVM_IR in
+  let set_action a () = action := a in
+  let speclist = [
+    ("-a", Arg.Unit (set_action Ast), "Print the AST");
+    ("-s", Arg.Unit (set_action Sast), "Print the SAST");
+    ("-l", Arg.Unit (set_action LLVM_IR), "Print the generated LLVM IR");
+  ] in
+  let s = ref "" in
+  Arg.parse speclist (fun filename -> s := progstr_from_file filename) usage;
 
-    (* print the untyped AST for front-end debugging purposes*)
-    (* print_parsed s; *)
-  )
+  let ast = get_ast !s in
+  let sast = check_func_list ast in
+  match !action with
+  Ast -> print_parsed !s
+  | Sast -> print_endline (Sast.string_of_sprogram sast);
+  | LLVM_IR -> print_endline (L.string_of_llmodule (translate sast));
 

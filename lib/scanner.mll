@@ -22,14 +22,14 @@ rule tokenize = parse
   let curr_tab_count = Stack.top tab_counts in
   if curr_tab_count > num_tabs then 
   (
-    print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
+    (* print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count)); *)
     enqueue DEDENT ((Stack.pop tab_counts) - num_tabs);
     Stack.push num_tabs tab_counts;
     NEWLINE
   )
   else if curr_tab_count < num_tabs then 
   (
-    print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
+    (* print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count)); *)
     enqueue INDENT (num_tabs - curr_tab_count);
     Stack.push num_tabs tab_counts; 
     NEWLINE
@@ -85,7 +85,7 @@ rule tokenize = parse
 | lower(letter | digit | '_')* as id { VARIABLE(id) }
 (*Functions*)
 | upper(upper | '-')+ as func {
-    print_endline func;
+    (* print_endline func; *)
    FUNCTION(func) }
 | eof { EOF }
 | _ as unchar { raise (Failure("Scanner error - Unknown character: " ^ Char.escaped unchar))}
