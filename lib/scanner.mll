@@ -9,6 +9,8 @@
 }
 
 let digit = ['0'-'9']
+let fdigit = digit* '.' digit+ | digit+ '.' digit*
+let exp = 'e' | 'E'
 let lower = ['a'-'z']
 let upper = ['A'-'Z']
 let letter = lower | upper
@@ -22,22 +24,18 @@ rule tokenize = parse
   (
     print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
     enqueue DEDENT ((Stack.pop tab_counts) - num_tabs);
-    print_endline ("DEDENT");
     Stack.push num_tabs tab_counts;
-    print_endline ("NEWLINE");
     NEWLINE
   )
   else if curr_tab_count < num_tabs then 
   (
     print_endline ((string_of_int num_tabs) ^ " " ^ (string_of_int curr_tab_count));
     enqueue INDENT (num_tabs - curr_tab_count);
-    print_endline ("INDENT");
     Stack.push num_tabs tab_counts; 
-    print_endline ("NEWLINE");
     NEWLINE
   )
   else 
-    (print_endline ("NEWLINE"); NEWLINE) 
+    (NEWLINE) 
 }
 (*Math*)
 | '+'  { PLUS }
@@ -53,12 +51,12 @@ rule tokenize = parse
 | '='  { ISEQUALTO }
 (*Punctuation*)
 | ';'  { SEMI }
-| '('  { print_endline "LPAREN"; LPAREN }
-| ')'  { print_endline "RPAREN"; RPAREN }
+| '('  { LPAREN }
+| ')'  { RPAREN }
 | '{'  { LBRACE }
 | '}'  { RBRACE }
 | ','  { COMMA }
-| ':'  { print_endline "COLON";COLON }
+| ':'  { COLON }
 (*Comment*)
 | '#'  { comment lexbuf }
 (*Built-in functions*)
@@ -67,19 +65,22 @@ rule tokenize = parse
 | "with"      { WITH }
 | "be"        { BE }
 (*Control flow*)
-| "if"        { print_endline "IF";IF }
-| "else"      { print_endline "ELSE";ELSE }
+| "if"        { IF }
+| "else"      { ELSE }
 | "while"     { WHILE }
 | "for"       { FOR }
 | "to"        { TO }
-| "return"    { print_endline "RETURN";RETURN }
+| "return"    { RETURN }
 (* types. TODO: char, string, array, custom type *)
 | "int"       { INT }
 | "bool"      { BOOL }
-(* literals TODO: char literal, string literal, list *)
+| "float"     { FLOAT }
+(* literals TODO: char literal, string literal, float, list *)
 | "TRUE"      { BOOLVAR(true) }
 | "FALSE"     { BOOLVAR(false) }
-| digit+ as lit { LITERAL(int_of_string lit) }
+| digit+ as lit { INTLITERAL(int_of_string lit) }
+| fdigit as lit { FLOATLITERAL(float_of_string lit) }
+| (fdigit | digit+) exp '-'? digit+ as lit { FLOATLITERAL(float_of_string lit) }
 (*Variables*)
 | lower(letter | digit | '_')* as id { VARIABLE(id) }
 (*Functions*)

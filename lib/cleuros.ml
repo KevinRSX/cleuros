@@ -19,9 +19,9 @@ let _ =
     let s =  progstr_from_file Sys.argv.(1) in
     let ast = get_ast s in
     let sast = check_func_list ast in
-    print_endline (L.string_of_llmodule (translate sast));
+    (*print_endline (L.string_of_llmodule (translate sast));*)
     (* print the SAST for front-end debugging purposes *)
-    (* print_endline (Sast.string_of_sprogram (check_func_list ast)); *)
+    print_endline (Sast.string_of_sprogram sast);
 
     (* print the untyped AST for front-end debugging purposes*)
     (* print_parsed s; *)

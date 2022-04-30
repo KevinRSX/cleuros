@@ -4,7 +4,8 @@ type sexpr = typ * sx
 and sx = 
     SBinop of sexpr * bop * sexpr
   | SBLit of bool
-  | SLit of int
+  | SILit of int
+  | SFLit of float
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
   | SVar of string
   | SSwap of string * string
@@ -34,7 +35,8 @@ let rec string_of_sexpr (t, e) =
                           string_of_sexpr e2
   | SBLit(true) -> "TRUE"
   | SBLit(false) -> "FALSE"
-  | SLit(l) -> string_of_int l
+  | SILit(l) -> string_of_int l
+  | SFLit(l) -> string_of_float l
   | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
   | SVar(id) -> id
   | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"

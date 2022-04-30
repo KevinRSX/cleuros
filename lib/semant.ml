@@ -74,7 +74,8 @@ let rec check_func_list all_func =
       (t, SBinop(se1, bop, se2))
     else raise (Failure err)
   | BLit b -> (Bool, SBLit b)
-  | Lit i -> (Int, SLit i)
+  | ILit i -> (Int, SILit i)
+  | FLit f -> (Float, SFLit f)
   | Asn (id, expr) ->
       let typ, v = check_expr cfunc expr in 
       set_id cfunc id typ f_sym_table;
