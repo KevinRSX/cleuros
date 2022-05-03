@@ -73,7 +73,25 @@ let rec check_func_list all_func =
       | _ -> raise (Failure err)
       in
       (t, SBinop(se1, bop, se2))
-    else raise (Failure err) (* int-float mismatch *)
+    else
+      if t1 = Int then
+        if t2 = Float then
+          let t = match bop with
+            Add | Sub | Mul | Div | Mod -> Float
+          | _ -> raise (Failure err)
+          in
+          (t, SBinop(se1, bop, se2))
+        else raise (Failure err)
+      else
+        if t1 = Int then
+          if t2 = Float then
+            let t = match bop with
+              Add | Sub | Mul | Div | Mod -> Float
+            | _ -> raise (Failure err)
+            in
+            (t, SBinop(se1, bop, se2))
+          else raise (Failure err)
+        else (raise (Failure err))
   | BLit b -> (Bool, SBLit b)
   | ILit i -> (Int, SILit i)
   | FLit f -> (Float, SFLit f)
