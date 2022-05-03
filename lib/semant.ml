@@ -74,8 +74,8 @@ let rec check_func_list all_func =
       in
       (t, SBinop(se1, bop, se2))
     else
-      if t1 = Int then
-        if t2 = Float then
+      if t1 = Float then
+        if t2 = Int then
           let t = match bop with
             Add | Sub | Mul | Div | Mod -> Float
           | _ -> raise (Failure err)
