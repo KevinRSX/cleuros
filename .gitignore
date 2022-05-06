@@ -36,3 +36,8 @@ _perf
 # vim swap files
 *.swp
 .vscode
+
+# ocamlyacc artifacts
+parser.ml
+parser.mli
+parser.output

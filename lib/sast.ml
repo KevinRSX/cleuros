@@ -26,7 +26,14 @@ type sfunc_def = {
     sbody : sstmt list;
 }
 
-type sprogram = sfunc_def list
+type scustom_type_def = {
+  sname: string; 
+  svars: param_type list;
+}
+
+type sprog_part = SFuncDef of sfunc_def | SCustomTypeDef of scustom_type_def
+
+type sprogram = sprog_part list
 
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
@@ -59,6 +66,15 @@ let string_of_sfdecl sfdecl =
   String.concat "" (List.map string_of_sstmt sfdecl.sbody) ^
   "}\n"
 
+
+let string_of_scust_type_def c = 
+  c.sname ^ " {" ^ (String.concat ", " (List.map string_of_param_type c.svars)) ^ "}"
+ 
+ let string_of_prog_part = function 
+   | SFuncDef(sfunc_def) -> string_of_sfdecl sfunc_def
+   | SCustomTypeDef(scust_type_def) -> string_of_scust_type_def scust_type_def
+ 
+
 let string_of_sprogram prog =
   "\n\nSementically checked program: \n\n" ^
-  String.concat "\n" (List.map string_of_sfdecl prog)
+  String.concat "\n" (List.map string_of_prog_part prog)

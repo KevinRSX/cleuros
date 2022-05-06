@@ -42,7 +42,7 @@ let get_fn fn tbl =
 let verify_args fn arg_type_list tbl =
   let curr = Hashtbl.find_opt tbl fn in
   match curr with
-  | None -> raise (Failure ("Undefined function call to " ^ fn))
+  | None -> raise (Failure ("Undefined function call to " ^ fn ^" table size: " ^ (string_of_int (Hashtbl.length tbl))))
   | Some param_type_list -> if param_type_list = arg_type_list then ignore ()
     else raise (Failure ("For function call to " ^ fn ^ ", arguments type (" ^ (String.concat ", "
     (List.map string_of_typ arg_type_list)) ^ ") don't match parameters (" ^
@@ -55,9 +55,7 @@ let set_func_param_table fn param_list tbl =
   | Some _ -> raise (Failure ("Duplicated definition of function " ^ fn))
 
 
-(****** Type checker entry point ******)
-let rec check_func_list all_func =
-  
+let check_func_def f = 
   (* cfunc == "containing function" *)
   let rec check_expr cfunc = function
   | Binop (e1, bop, e2) -> 
@@ -85,6 +83,7 @@ let rec check_func_list all_func =
   | Call (fname, arg_list) ->
       let sarg_list = List.map (check_expr cfunc) arg_list in
       let arg_type_list = List.map (function (t, _) -> t) sarg_list in
+      print_endline cfunc;
       verify_args fname arg_type_list f_param_table;
       (get_fn fname f_sym_table, SCall(fname, sarg_list))
   in
@@ -123,13 +122,26 @@ let rec check_func_list all_func =
       sbody = check_stmt_list func.fname func.body;
     }
   in
-  match all_func with
-  | [] -> []
-  | f::fl -> 
-      set_fn f.fname f.rtyp f_sym_table;
-      let set_arg_ids (typ, id) = set_id f.fname id typ f_sym_table in
-      ignore (List.map set_arg_ids f.args);
-      set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
-                                      f_param_table;
-      let checked_f = check_func f in
-      checked_f :: check_func_list fl;
+  set_fn f.fname f.rtyp f_sym_table;
+  let set_arg_ids (typ, id) = set_id f.fname id typ f_sym_table in
+  ignore (List.map set_arg_ids f.args);
+  set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
+                                  f_param_table;
+  let checked_func = check_func f
+  in 
+  checked_func
+
+let add_custom_type c = 
+  let set_var_ids (typ, id) = set_id c.name id typ f_sym_table in
+  ignore (List.map set_var_ids c.vars);
+  set_func_param_table c.name ((List.map (function (t, _) -> t) c.vars))
+  f_param_table;
+  SCustomTypeDef ({sname=c.name; svars=c.vars})
+
+
+let check_part part = 
+  match part with 
+  | FuncDef(func) -> SFuncDef (check_func_def func)
+  | CustomTypeDef(cust) ->  (add_custom_type cust)
+
+let rec check_program prog = List.map check_part prog

@@ -1,6 +1,10 @@
+TEST()
+	a := 2
+
 MAIN()
 	x := 3 #comment
 	y := TRUE
+	TEST()
 	if y 
 		3 + 5
 		x + x

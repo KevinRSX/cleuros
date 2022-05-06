@@ -3,6 +3,7 @@
 %token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token NEWTYPE
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
@@ -12,6 +13,7 @@
 %token <float> FLOATLITERAL
 %token <string> VARIABLE
 %token <string> FUNCTION
+%token <string> CUSTOMTYPENAME
 
 %left SEMI
 %right ASNTO
@@ -20,18 +22,25 @@
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 
-%start program
-%type <Ast.program> program
+%start program_EOF
+%type <Ast.program> program_EOF
 
 %%
 
-program: fdecls EOF { $1 }
-;
+program_EOF: program EOF {  $1 }
 
-fdecls: 
-/* nothing */ {[]}
-| fdecl fdecls  { $1::$2 }
-;
+program: 
+| /* nothing*/ {[]}
+| custom_type program {(CustomTypeDef $1::$2)}
+| fdecl program {(FuncDef $1::$2)}
+
+custom_type: 
+NEWTYPE CUSTOMTYPENAME COLON NEWLINE INDENT custom_var_list DEDENT NEWLINE { { name = $2; vars = $6}}
+
+custom_var_list: 
+| /* nothing */ {[]}
+| typ_binding {[$1]}
+| typ_binding NEWLINE custom_var_list {$1::$3}
 
 typ:
 | INT   { Int }
@@ -67,7 +76,7 @@ formals_opt:
 
 formals_list:
   typ_binding { [$1] }
-  | typ_binding COMMA formals_list { $1::$3 }
+  | typ_binding COMMA formals_list { ($1)::$3 }
 ;
 
 typ_binding:
