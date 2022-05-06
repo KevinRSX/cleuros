@@ -4,6 +4,7 @@ module L = Llvm
 module A = Ast
 open Sast
 
+(* We need not store type information here because semant has done it *)
 module StringMap = Map.Make(String)
 
 let translate functions =
@@ -38,6 +39,52 @@ let translate functions =
       StringMap.add name (L.define_function name ftype the_module, fdecl) m in
     List.fold_left function_decl StringMap.empty functions in
 
+  let build_function_body fdecl =
+    let (the_function, _) = StringMap.find fdecl.sfname function_decls in
+    let entry_block = L.entry_block the_function in
+    let builder = L.builder_at_end context entry_block in
+
+    let local_vars = 
+      let add_formal m (t, n) p =
+        L.set_value_name n p;
+        let store_location = L.build_alloca (ltype_of_typ t) n builder in
+        ignore (L.build_store p store_location builder);
+        StringMap.add n store_location m
+      in
+      List.fold_left2 add_formal StringMap.empty fdecl.sargs
+        (Array.to_list (L.params the_function))
+    in
+
+    (* Return the value for a variable or formal argument.
+    Check local names first, then global names *)
+    let lookup name = StringMap.find name local_vars in
+
+    let rec build_expr builder ((_, e): sexpr) = match e with
+        SILit i -> L.const_int i32_t i
+      | _ -> L.const_int i32_t 0
+    in
+
+    (* Copied from MicroC *)
+    (* LLVM insists each basic block end with exactly one "terminator"
+       instruction that transfers control.  This function runs "instr builder"
+       if the current block does not already have a terminator.  Used,
+       e.g., to handle the "fall off the end of the function" case. *)
+    let add_terminal builder instr =
+      match L.block_terminator (L.insertion_block builder) with
+        Some _ -> ()
+      | None -> ignore (instr builder) in
+
+    let rec build_stmt builder = function
+        SBlock sb -> List.fold_left build_stmt builder sb
+      | SExpr e -> ignore (build_expr builder e); builder
+      | _ -> builder
+    in
+
+    let func_builder = build_stmt builder (SBlock fdecl.sbody) in
+    add_terminal func_builder (L.build_ret (L.const_int i32_t 0))
+  in
+
+  (***************************************************************************)
   let gcd_ref_func =
     let ftype = L.function_type i32_t [|i32_t; i32_t|] in
     let func = L.define_function "gcd_ref" ftype the_module in
@@ -107,6 +154,8 @@ let translate functions =
     let _ = L.build_ret a14 builder in
     func
   in
+  (***************************************************************************)
+
 
   let _ =
     let ftype = L.function_type i32_t [||] in
@@ -121,4 +170,5 @@ let translate functions =
       "res" builder in
     L.build_ret gcd_res builder
   in
+  List.iter build_function_body functions;
   the_module
