@@ -83,7 +83,6 @@ let check_func_def f =
   | Call (fname, arg_list) ->
       let sarg_list = List.map (check_expr cfunc) arg_list in
       let arg_type_list = List.map (function (t, _) -> t) sarg_list in
-      print_endline cfunc;
       verify_args fname arg_type_list f_param_table;
       (get_fn fname f_sym_table, SCall(fname, sarg_list))
   in

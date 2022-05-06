@@ -1,6 +1,10 @@
 TEST()
 	a := 2
 
+newtype MyCustomType
+	let a be a int
+	let b be a bool
+
 MAIN()
 	x := 3 #comment
 	y := TRUE

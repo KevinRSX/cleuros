@@ -3,7 +3,7 @@
 %token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
-%token NEWTYPE
+%token NEWTYPE LET BEA
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
@@ -31,16 +31,18 @@ program_EOF: program EOF {  $1 }
 
 program: 
 | /* nothing*/ {[]}
-| custom_type program {(CustomTypeDef $1::$2)}
-| fdecl program {(FuncDef $1::$2)}
+| custom_type program {(CustomTypeDef $1)::$2}
+| fdecl program {(FuncDef $1)::$2}
 
 custom_type: 
-NEWTYPE CUSTOMTYPENAME COLON NEWLINE INDENT custom_var_list DEDENT NEWLINE { { name = $2; vars = $6}}
+NEWTYPE CUSTOMTYPENAME NEWLINE INDENT custom_var_list DEDENT { { name = $2; vars = $5}}
 
 custom_var_list: 
 | /* nothing */ {[]}
-| typ_binding {[$1]}
-| typ_binding NEWLINE custom_var_list {$1::$3}
+| custom_var_binding custom_var_list {$1::$2}
+
+custom_var_binding: 
+LET VARIABLE BEA typ NEWLINE {($4, $2)}
 
 typ:
 | INT   { Int }
