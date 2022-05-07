@@ -53,7 +53,7 @@ let translate prog =
     let entry_block = L.entry_block the_function in
     let builder = L.builder_at_end context entry_block in
 
-    let local_vars = 
+    let local_vars = ref(
       let add_formal m (t, n) p =
         L.set_value_name n p;
         let store_location = L.build_alloca (ltype_of_typ t) n builder in
@@ -62,14 +62,16 @@ let translate prog =
       in
       List.fold_left2 add_formal StringMap.empty fdecl.sargs
         (Array.to_list (L.params the_function))
+      )
     in
 
     (* Get storage location of a local assignment *)
     let get_local_assignment_loc etype name =
-      try StringMap.find name local_vars
+      try StringMap.find name !local_vars
       with Not_found ->
             let loc = L.build_alloca (ltype_of_typ etype) name builder in
-            ignore (StringMap.add name loc local_vars);
+            (* print_endline ("newly storing: " ^ name); *)
+            local_vars := StringMap.add name loc !local_vars;
             loc
     in
 
