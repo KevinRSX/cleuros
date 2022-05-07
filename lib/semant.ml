@@ -31,7 +31,8 @@ let set_cust_type_var name (typ, id) =
   let key = make_key name id in  
   let curr = Hashtbl.find_opt cust_type_vars_table key in 
   match curr with 
-    | None -> Hashtbl.add cust_type_vars_table key typ 
+    | None -> print_endline (key ^ ": " ^ string_of_typ typ);
+      Hashtbl.add cust_type_vars_table key typ 
     | Some _ -> raise (Failure ("Custom type var " ^ key ^ "is already defined"))
 
 let rec set_cust_type_vars name vars = 
@@ -178,7 +179,7 @@ let check_func_def f =
       match opt_cust_type with 
       | None ->  raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
       | Some c -> 
-        let var_key = make_key c id in 
+        let var_key = make_key c var in 
         let opt_type = try_get var_key cust_type_vars_table in 
         (
           match opt_type with 
@@ -188,7 +189,8 @@ let check_func_def f =
             if t = typ then
               (Void, SCustAsn(id, var, (typ, v))) 
             else 
-              raise (Failure ("var " ^ var_key ^ " is being assigned to a mismatched type"))
+              raise (Failure ("var " ^ var_key ^ " is being assigned to a mismatched type, expected: " 
+              ^ (string_of_typ typ) ^ " but received " ^ (string_of_typ t)))
         )
     )
   in

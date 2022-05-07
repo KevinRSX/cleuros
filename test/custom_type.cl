@@ -4,5 +4,5 @@ newtype MyCustomType
 
 MAIN()
 	let a be MyCustomType
-	a.a := 3
+	a.b := FALSE
 
