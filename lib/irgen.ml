@@ -7,7 +7,7 @@ open Sast
 (* We need not store type information here because semant has done it *)
 module StringMap = Map.Make(String)
 
-let translate functions =
+let translate prog =
   let context = L.global_context () in
   let the_module = L.create_module context "cleuros" in
 
@@ -37,7 +37,14 @@ let translate functions =
       in
       let ftype = L.function_type (ltype_of_typ fdecl.srtyp) param_types in
       StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+    let custom_decl m ctdecl = m in
+    let add_func_decl m = function
+        SFuncDef fdecl -> function_decl m fdecl
+      | SCustomTypeDef ctdecl -> custom_decl m ctdecl
+    in
+    List.fold_left add_func_decl StringMap.empty prog in
+
+  let build_custom_type_body ctdecl = () in
 
   let build_function_body fdecl =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
@@ -170,5 +177,10 @@ let translate functions =
       "res" builder in
     L.build_ret gcd_res builder
   in
-  List.iter build_function_body functions;
+
+  let rec build_prog = function
+      SCustomTypeDef ctdecl -> build_custom_type_body ctdecl
+    | SFuncDef fdecl -> build_function_body fdecl
+  in
+  List.iter build_prog prog;
   the_module
