@@ -49,6 +49,7 @@ rule tokenize = parse
 | '<'  { LESS }
 | '>'  { GREATER }
 | '='  { ISEQUALTO }
+| "!=" { NOTEQUAL }
 (*Punctuation*)
 | ';'  { SEMI }
 | '('  { LPAREN }

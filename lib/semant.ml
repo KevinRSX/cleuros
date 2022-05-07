@@ -41,7 +41,7 @@ let rec set_cust_type_vars name vars =
   | f::r -> set_cust_type_var name f; set_cust_type_vars name r 
 
 let set_var_to_cust_type cfunc var cust_type = 
-  let key = make_key cfunc var in 
+  let key = make_key cfunc var in
   let curr = Hashtbl.find_opt var_to_cust_type_table key in 
   match curr with 
   | None -> Hashtbl.add var_to_cust_type_table key cust_type 
@@ -152,7 +152,13 @@ let check_func_def f =
       | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
     )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
-  | Swap (id1, id2) -> (Void, SSwap (id1, id2))
+  | Swap (id1, id2) ->
+      let t1 = get_id cfunc id1 f_sym_table in
+      let t2 = get_id cfunc id2 f_sym_table in
+      if t1 = t2 then (Void, SSwap (id1, id2))
+      else raise (Failure ("Incompatible type swapping (" ^
+            string_of_typ t1 ^ ", " ^ string_of_typ t2 ^ ") of variables (" ^
+            id1 ^ ", " ^ id2 ^ ")"))
   | Call (fname, arg_list) ->
     let sarg_list = List.map (check_expr cfunc) arg_list in
     let arg_type_list = List.map (function (t, _) -> t) sarg_list in
