@@ -14,14 +14,16 @@ let translate prog =
   (* Get types from the context *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and i1_t       = L.i1_type     context in
+  and i1_t       = L.i1_type     context
+  and f_t        = L.float_type  context in
 
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
-    | _ -> i8_t
+    | A.Float -> f_t
+    | _ -> i32_t
   in
 
   let printf_t : L.lltype =
@@ -62,12 +64,23 @@ let translate prog =
         (Array.to_list (L.params the_function))
     in
 
-    (* Return the value for a variable or formal argument.
-    Check local names first, then global names *)
-    let lookup name = StringMap.find name local_vars in
+    (* Get storage location of a local assignment *)
+    let get_local_assignment_loc etype name =
+      try StringMap.find name local_vars
+      with Not_found ->
+            let loc = L.build_alloca (ltype_of_typ etype) name builder in
+            ignore (StringMap.add name loc local_vars);
+            loc
+    in
 
     let rec build_expr builder ((_, e): sexpr) = match e with
         SILit i -> L.const_int i32_t i
+      | SBLit b -> L.const_int i1_t (if b then 1 else 0)
+      | SFLit f -> L.const_float f_t f
+      | SAsn (name, (t, expr)) ->
+          let e' = build_expr builder (t, expr) in
+          let store = get_local_assignment_loc t name in
+          ignore (L.build_store e' store builder); e'
       | _ -> L.const_int i32_t 0
     in
 
