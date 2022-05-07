@@ -6,7 +6,45 @@ let f_sym_table = Hashtbl.create 64 (* map of "{func}#{var}" -> type *)
    in f_sym_table *)
 let f_param_table = Hashtbl.create 64 
 
+(*
+ Stores information about custom types
+ Custom type names are stored as name --> name#, e.g "MyCustType" --> "MyCustType#"
+ Custom type vars are stored as CustType#var --> type, e.g. "MyCustType#myInt" --> int
+*)
+(* Stores all custom types defined in a set *)
+let cust_type_table = Hashtbl.create 64 
+(* Stores all custom type vars in map of "typeName#varName" --> type*)
+let cust_type_vars_table = Hashtbl.create 64
+(* Stores variables to their custom type*)
+let var_to_cust_type_table = Hashtbl.create 64
+
 let make_key fn id = fn ^ "#" ^ id
+
+let set_cust_type name = 
+  let curr = Hashtbl.find_opt cust_type_table name in 
+  let key = make_key name "" in
+  match curr with 
+  | None -> Hashtbl.add cust_type_table key key 
+  | Some _ -> raise (Failure ("Custom type " ^ name ^ "is already defined"))
+
+let set_cust_type_var name (typ, id) = 
+  let key = make_key name id in  
+  let curr = Hashtbl.find_opt cust_type_vars_table key in 
+  match curr with 
+    | None -> Hashtbl.add cust_type_vars_table key typ 
+    | Some _ -> raise (Failure ("Custom type var " ^ key ^ "is already defined"))
+
+let rec set_cust_type_vars name vars = 
+  match vars with 
+  | [] -> ignore(); 
+  | f::r -> set_cust_type_var name f; set_cust_type_vars name r 
+
+let set_var_to_cust_type cfunc var cust_type = 
+  let key = make_key cfunc var in 
+  let curr = Hashtbl.find_opt var_to_cust_type_table key in 
+  match curr with 
+  | None -> Hashtbl.add var_to_cust_type_table key cust_type 
+  | Some t -> raise (Failure ("Variable " ^ var ^ " in function " ^ cfunc ^ " already has type " ^ t ))
 
 (******* f_sym_table helpers *******)
 let set key typ tbl = 
@@ -25,6 +63,9 @@ let set_fn fn typ tbl =
   let key = make_key fn "" in 
   set key typ tbl
 
+let try_get key tbl = 
+  Hashtbl.find_opt tbl key
+
 let get key tbl =
   try Hashtbl.find tbl key 
   with Not_found -> raise (Failure ("undeclared identifier " ^ key))
@@ -42,7 +83,7 @@ let get_fn fn tbl =
 let verify_args fn arg_type_list tbl =
   let curr = Hashtbl.find_opt tbl fn in
   match curr with
-  | None -> raise (Failure ("Undefined function call to " ^ fn))
+  | None -> raise (Failure ("Undefined function call to " ^ fn ^" table size: " ^ (string_of_int (Hashtbl.length tbl))))
   | Some param_type_list -> if param_type_list = arg_type_list then ignore ()
     else raise (Failure ("For function call to " ^ fn ^ ", arguments type (" ^ (String.concat ", "
     (List.map string_of_typ arg_type_list)) ^ ") don't match parameters (" ^
@@ -55,9 +96,7 @@ let set_func_param_table fn param_list tbl =
   | Some _ -> raise (Failure ("Duplicated definition of function " ^ fn))
 
 
-(****** Type checker entry point ******)
-let rec check_func_list all_func =
-  
+let check_func_def f = 
   (* cfunc == "containing function" *)
   let rec check_expr cfunc = function
   | Binop (e1, bop, e2) -> 
@@ -96,9 +135,21 @@ let rec check_func_list all_func =
   | ILit i -> (Int, SILit i)
   | FLit f -> (Float, SFLit f)
   | Asn (id, expr) ->
-      let typ, v = check_expr cfunc expr in 
-      set_id cfunc id typ f_sym_table;
-      (Void, SAsn (id, (typ, v)))
+      let key = make_key cfunc id in 
+      let curr = try_get key var_to_cust_type_table in (
+        match curr with 
+        | None ->  let typ, v = check_expr cfunc expr in 
+          set_id cfunc id typ f_sym_table;
+          (Void, SAsn (id, (typ, v)))
+        | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
+      )
+  | CustAsn (id, cust) ->
+    let key = make_key cfunc id in 
+    let curr = try_get key f_sym_table in (
+      match curr with 
+      | None -> set_var_to_cust_type cfunc id cust; (Void, SCustAsn (id, cust))
+      | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
+    )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
   | Swap (id1, id2) -> (Void, SSwap (id1, id2))
   | Call (fname, arg_list) ->
@@ -142,13 +193,24 @@ let rec check_func_list all_func =
       sbody = check_stmt_list func.fname func.body;
     }
   in
-  match all_func with
-  | [] -> []
-  | f::fl -> 
-      set_fn f.fname f.rtyp f_sym_table;
-      let set_arg_ids (typ, id) = set_id f.fname id typ f_sym_table in
-      ignore (List.map set_arg_ids f.args);
-      set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
-                                      f_param_table;
-      let checked_f = check_func f in
-      checked_f :: check_func_list fl;
+  set_fn f.fname f.rtyp f_sym_table;
+  let set_arg_ids (typ, id) = set_id f.fname id typ f_sym_table in
+  ignore (List.map set_arg_ids f.args);
+  set_func_param_table f.fname ((List.map (function (t, _) -> t) f.args))
+                                  f_param_table;
+  let checked_func = check_func f
+  in 
+  checked_func
+
+let add_custom_type c = 
+  set_cust_type c.name;
+  set_cust_type_vars c.name c.vars;
+  SCustomTypeDef ({sname=c.name; svars=c.vars})
+
+
+let check_part part = 
+  match part with 
+  | FuncDef(func) -> SFuncDef (check_func_def func)
+  | CustomTypeDef(cust) ->  (add_custom_type cust)
+
+let rec check_program prog = List.map check_part prog

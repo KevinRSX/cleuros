@@ -81,6 +81,11 @@ rule tokenize = parse
 | digit+ as lit { INTLITERAL(int_of_string lit) }
 | fdigit as lit { FLOATLITERAL(float_of_string lit) }
 | (fdigit | digit+) exp '-'? digit+ as lit { FLOATLITERAL(float_of_string lit) }
+(*Custom Types*)
+| "newtype"   { NEWTYPE }
+| upper(lower)+(letter)* as name { CUSTOMTYPENAME(name)}
+| "let"       { LET }
+| "be a"      { BEA }
 (*Variables*)
 | lower(letter | digit | '_')* as id { VARIABLE(id) }
 (*Functions*)

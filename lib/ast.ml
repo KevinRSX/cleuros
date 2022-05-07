@@ -10,6 +10,7 @@ type expr =
   | ILit of int
   | FLit of float
   | Asn of string * expr
+  | CustAsn of string * string 
   | Var of string
   | Swap of string * string
   | Call of string * expr list 
@@ -31,7 +32,15 @@ type func_def = {
     body : stmt list;
 }
 
-type program = func_def list
+type custom_type_def = {
+  name: string; 
+  vars: param_type list;
+}
+
+type prog_part = FuncDef of func_def | CustomTypeDef of custom_type_def
+
+type program = prog_part list
+
 
 let string_of_bop = function
     Add -> "+"
@@ -56,6 +65,7 @@ let rec string_of_expr = function
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | CustAsn(id, cust_type) -> id ^ " is " ^ cust_type
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
@@ -81,5 +91,12 @@ let string_of_func_def fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
+let string_of_cust_type_def c = 
+ c.name ^ " {" ^ (String.concat ", " (List.map string_of_param_type c.vars)) ^ "}"
+
+let string_of_prog_part = function 
+  | FuncDef(func_def) -> string_of_func_def func_def
+  | CustomTypeDef(cust_type_def) -> string_of_cust_type_def cust_type_def
+
 let string_of_prog prog = 
-  "\n\nParsed program: \n\n" ^ String.concat "\n" (List.map string_of_func_def prog)
+  "\n\nParsed program: \n\n" ^ (String.concat "\n" (List.map string_of_prog_part prog))

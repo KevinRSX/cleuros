@@ -1,7 +1,15 @@
+TEST()
+	a := 2
+
+newtype MyCustomType
+	let a be a int
+	let b be a bool
+
 MAIN()
 	x := 3 #comment
 	f := 3.5
 	y := TRUE
+	TEST()
 	if y 
 		3 + 5
 		x + x

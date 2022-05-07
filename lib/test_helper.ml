@@ -5,12 +5,12 @@ let test_int (actual : int) (expected : int) =
 
 let print_parsed progstr =
   let lexbuf = Lexing.from_string progstr in
-  let prog = Parser.program Scanner.next_token lexbuf in
+  let prog = Parser.program_EOF Scanner.next_token lexbuf in
   print_endline (Ast.string_of_prog prog)
 
 let get_ast progstr =
   let lexbuf = Lexing.from_string progstr in
-  Parser.program Scanner.next_token lexbuf
+  Parser.program_EOF Scanner.next_token lexbuf
 
 let progstr_from_file path =
   let ch = open_in path in
