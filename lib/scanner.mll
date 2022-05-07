@@ -57,6 +57,7 @@ rule tokenize = parse
 | '}'  { RBRACE }
 | ','  { COMMA }
 | ':'  { COLON }
+| '.'  { PERIOD }
 (*Comment*)
 | '#'  { comment lexbuf }
 (*Built-in functions*)

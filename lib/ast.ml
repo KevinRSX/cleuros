@@ -10,8 +10,10 @@ type expr =
   | ILit of int
   | FLit of float
   | Asn of string * expr
-  | CustAsn of string * string 
+  | CustDecl of string * string 
   | Var of string
+  | CustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
+  | CustAsn of string * string * expr
   | Swap of string * string
   | Call of string * expr list 
 
@@ -41,7 +43,6 @@ type prog_part = FuncDef of func_def | CustomTypeDef of custom_type_def
 
 type program = prog_part list
 
-
 let string_of_bop = function
     Add -> "+"
   | Sub -> "-"
@@ -65,7 +66,9 @@ let rec string_of_expr = function
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
-  | CustAsn(id, cust_type) -> id ^ " is " ^ cust_type
+  | CustDecl(id, cust_type) -> id ^ " is " ^ cust_type
+  | CustAsn(id, var, e) -> id ^ "." ^ var ^ " = " ^ string_of_expr e
+  | CustVar(id, var) -> id ^ "." ^ var 
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
