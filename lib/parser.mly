@@ -3,7 +3,7 @@
 %token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER
-%token NEWTYPE LET BEA
+%token NEWTYPE LET BEA PERIOD
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
@@ -113,11 +113,13 @@ expr:
 | expr GREATER expr   { Binop($1, Greater, $3) }
 | expr ISEQUALTO expr { Binop($1, Eq, $3) }
 | VARIABLE            { Var($1) }
+| VARIABLE PERIOD VARIABLE { CustVar($1, $3)}
 | INTLITERAL          { ILit($1) }
 | FLOATLITERAL        { FLit($1) }
 | BOOLVAR             { BLit($1) }
-| LET VARIABLE BE CUSTOMTYPENAME { CustAsn($2, $4) }
+| LET VARIABLE BE CUSTOMTYPENAME { CustDecl($2, $4) }
 | VARIABLE ASNTO expr { Asn($1, $3) }
+| VARIABLE PERIOD VARIABLE ASNTO expr { CustAsn ($1, $3, $5)}
 | EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
 | LPAREN expr RPAREN  { $2 }

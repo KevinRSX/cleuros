@@ -7,10 +7,12 @@ and sx =
   | SILit of int
   | SFLit of float
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
-  | SCustAsn of string * string (* (id, custom_type) *)
+  | SCustDecl of string * string (* (id, custom_type) *)
   | SVar of string
   | SSwap of string * string
   | SCall of string * sexpr list 
+  | SCustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
+  | SCustAsn of string * string * sexpr
 
 type sstmt =
     SBlock of sstmt list 
@@ -38,18 +40,21 @@ type sprogram = sprog_part list
 
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
-  "(" ^ string_of_typ t ^ " : " ^ (match e with
-    SBinop(e1, b, e2) -> string_of_sexpr e1 ^ " " ^ string_of_bop b ^ " " ^
-                          string_of_sexpr e2
-  | SBLit(true) -> "TRUE"
-  | SBLit(false) -> "FALSE"
-  | SILit(l) -> string_of_int l
-  | SFLit(l) -> string_of_float l
-  | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
-  | SCustAsn(id, cust) -> "CustomAssignment # " ^ id ^ " := " ^ cust
-  | SVar(id) -> id
-  | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
-  | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
+  "(" ^ string_of_typ t ^ " : " ^ (
+    match e with
+      SBinop(e1, b, e2) -> string_of_sexpr e1 ^ " " ^ string_of_bop b ^ " " ^
+                            string_of_sexpr e2
+    | SBLit(true) -> "TRUE"
+    | SBLit(false) -> "FALSE"
+    | SILit(l) -> string_of_int l
+    | SFLit(l) -> string_of_float l
+    | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
+    | SCustDecl(id, cust) -> "CustomAssignment # " ^ id ^ " := " ^ cust
+    | SVar(id) -> id
+    | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
+    | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
+    | SCustVar(id, var) -> id ^ "." ^ var
+    | SCustAsn(id, var, e) -> "Assignment # " ^ id ^ "." ^ var ^ " := " ^ (string_of_sexpr e)
   ) ^ ")"
 
 let rec string_of_sstmt = function

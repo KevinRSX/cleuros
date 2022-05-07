@@ -12,8 +12,8 @@ let f_param_table = Hashtbl.create 64
  Custom type vars are stored as CustType#var --> type, e.g. "MyCustType#myInt" --> int
 *)
 (* Stores all custom types defined in a set *)
-let cust_type_table = Hashtbl.create 64 
-(* Stores all custom type vars in map of "typeName#varName" --> type*)
+let cust_type_table = Hashtbl.create 64  
+(* Stores all custom type vars in map of "typeName#varName" --> type *)
 let cust_type_vars_table = Hashtbl.create 64
 (* Stores variables to their custom type*)
 let var_to_cust_type_table = Hashtbl.create 64
@@ -143,20 +143,33 @@ let check_func_def f =
           (Void, SAsn (id, (typ, v)))
         | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
       )
-  | CustAsn (id, cust) ->
+  | CustDecl (id, cust) ->
     let key = make_key cfunc id in 
     let curr = try_get key f_sym_table in (
       match curr with 
-      | None -> set_var_to_cust_type cfunc id cust; (Void, SCustAsn (id, cust))
+      | None -> set_var_to_cust_type cfunc id cust; (Void, SCustDecl (id, cust))
       | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
     )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
   | Swap (id1, id2) -> (Void, SSwap (id1, id2))
   | Call (fname, arg_list) ->
-      let sarg_list = List.map (check_expr cfunc) arg_list in
-      let arg_type_list = List.map (function (t, _) -> t) sarg_list in
+    let sarg_list = List.map (check_expr cfunc) arg_list in
+    let arg_type_list = List.map (function (t, _) -> t) sarg_list in
       verify_args fname arg_type_list f_param_table;
       (get_fn fname f_sym_table, SCall(fname, sarg_list))
+  | CustVar(id, var) -> 
+    let key = make_key cfunc id in 
+    let opt_cust_type = try_get key var_to_cust_type_table in 
+    match opt_cust_type with 
+    | None -> raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
+    | Some c -> ( 
+      let var_key = make_key c id in 
+      let opt_type = try_get var_key cust_type_vars_table in 
+      match opt_type with
+      | None -> raise (Failure ("var " ^ var_key ^ " is not declared for this custom type " ^ c))
+      | Some t -> (t, SCustVar(id, var))
+    )
+
   in
 
   let rec check_stmt_list cfunc all_stmt =

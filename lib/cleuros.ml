@@ -20,10 +20,12 @@ let () =
   let s = ref "" in
   Arg.parse speclist (fun filename -> s := progstr_from_file filename) usage;
 
-  let ast = get_ast !s in 
-  let sast = check_program  ast in
   match !action with
   Ast -> print_parsed !s
-  | Sast -> print_endline (Sast.string_of_sprogram sast);
-  | LLVM_IR -> print_endline (L.string_of_llmodule (translate sast));
-
+  | _ -> ( let ast = get_ast !s in 
+    let sast = check_program  ast in
+    match !action with 
+    | Ast -> print_parsed !s 
+    | Sast -> print_endline (Sast.string_of_sprogram sast);
+    | LLVM_IR -> print_endline (L.string_of_llmodule (translate sast));
+  )
