@@ -1,18 +1,12 @@
-# valid
-int MAIN()
-{
-	a := 0;
-	GCD(a, a / 2);
-}
-
 int GCD(a be int, b be int)
-{
-	if a < b
-		return GCD(b, a);
-	else {
-		if b = 0
-			return a;
+	while a = b
+		if (b < a)
+			a = a - b
 		else
-			return GCD(b, a % b);
-	}
-}
+			b = b - a
+	return a
+
+int MAIN()
+	a := 12
+	b := 16
+	GCD(a, a / 2)
