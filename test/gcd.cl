@@ -1,5 +1,5 @@
 int GCD(a be int, b be int)
-	while a = b
+	while a != b
 		if (b < a)
 			a = a - b
 		else
@@ -9,4 +9,4 @@ int GCD(a be int, b be int)
 int MAIN()
 	a := 12
 	b := 16
-	GCD(a, a / 2)
+	GCD(a, b)

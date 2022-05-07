@@ -1,8 +1,8 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE MOD ISEQUALTO ASNTO EOF
+%token PLUS MINUS TIMES DIVIDE MOD ASNTO EOF
 %token SEMI LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
-%token LBRACE RBRACE IF ELSE LESS WHILE GREATER
+%token LBRACE RBRACE IF ELSE LESS WHILE GREATER ISEQUALTO NOTEQUAL
 %token NEWTYPE LET BEA PERIOD
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
@@ -18,7 +18,7 @@
 %left SEMI
 %right ASNTO
 
-%left LESS GREATER ISEQUALTO
+%left LESS GREATER ISEQUALTO NOTEQUAL
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 
@@ -112,6 +112,7 @@ expr:
 | expr LESS expr      { Binop($1, Less, $3) }
 | expr GREATER expr   { Binop($1, Greater, $3) }
 | expr ISEQUALTO expr { Binop($1, Eq, $3) }
+| expr NOTEQUAL expr  { Binop($1, Neq, $3) }
 | VARIABLE            { Var($1) }
 | VARIABLE PERIOD VARIABLE { CustVar($1, $3)}
 | INTLITERAL          { ILit($1) }
