@@ -165,7 +165,7 @@ let check_func_def f =
       match opt_cust_type with 
       | None -> raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
       | Some c -> ( 
-        let var_key = make_key c id in 
+        let var_key = make_key c var in 
         let opt_type = try_get var_key cust_type_vars_table in 
         match opt_type with
         | None -> raise (Failure ("var " ^ var_key ^ " is not declared for this custom type " ^ c))

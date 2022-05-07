@@ -12,7 +12,7 @@ and sx =
   | SSwap of string * string
   | SCall of string * sexpr list 
   | SCustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
-  | SCustAsn of string * string * sexpr
+  | SCustAsn of string * string * sexpr  (* id, var, expr *)
 
 type sstmt =
     SBlock of sstmt list 

@@ -43,7 +43,6 @@ type prog_part = FuncDef of func_def | CustomTypeDef of custom_type_def
 
 type program = prog_part list
 
-
 let string_of_bop = function
     Add -> "+"
   | Sub -> "-"
