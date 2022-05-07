@@ -67,12 +67,31 @@ let rec check_func_list all_func =
     if t1 = t2 then 
       let t = match bop with 
         Add | Sub | Mul | Div | Mod when t1 = Int -> Int 
+      | Add | Sub | Mul | Div | Mod when t1 = Float -> Float 
       | Add | Sub | Mul | Div | Mod when t1 = Bool -> raise (Failure err)
       | Neq | Less | And | Or | Eq | Greater -> Bool
       | _ -> raise (Failure err)
       in
       (t, SBinop(se1, bop, se2))
-    else raise (Failure err)
+    else
+      if t1 = Float then
+        if t2 = Int then
+          let t = match bop with
+            Add | Sub | Mul | Div | Mod -> Float
+          | _ -> raise (Failure err)
+          in
+          (t, SBinop(se1, bop, se2))
+        else raise (Failure err)
+      else
+        if t1 = Int then
+          if t2 = Float then
+            let t = match bop with
+              Add | Sub | Mul | Div | Mod -> Float
+            | _ -> raise (Failure err)
+            in
+            (t, SBinop(se1, bop, se2))
+          else raise (Failure err)
+        else (raise (Failure err))
   | BLit b -> (Bool, SBLit b)
   | ILit i -> (Int, SILit i)
   | FLit f -> (Float, SFLit f)
