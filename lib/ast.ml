@@ -10,6 +10,7 @@ type expr =
   | ILit of int
   | FLit of float
   | Asn of string * expr
+  | CustAsn of string * string 
   | Var of string
   | Swap of string * string
   | Call of string * expr list 
@@ -64,6 +65,7 @@ let rec string_of_expr = function
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | CustAsn(id, cust_type) -> id ^ " is " ^ cust_type
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"

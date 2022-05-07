@@ -116,6 +116,7 @@ expr:
 | INTLITERAL          { ILit($1) }
 | FLOATLITERAL        { FLit($1) }
 | BOOLVAR             { BLit($1) }
+| LET VARIABLE BE CUSTOMTYPENAME { CustAsn($2, $4) }
 | VARIABLE ASNTO expr { Asn($1, $3) }
 | EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}

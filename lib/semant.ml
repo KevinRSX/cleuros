@@ -6,7 +6,45 @@ let f_sym_table = Hashtbl.create 64 (* map of "{func}#{var}" -> type *)
    in f_sym_table *)
 let f_param_table = Hashtbl.create 64 
 
+(*
+ Stores information about custom types
+ Custom type names are stored as name --> name#, e.g "MyCustType" --> "MyCustType#"
+ Custom type vars are stored as CustType#var --> type, e.g. "MyCustType#myInt" --> int
+*)
+(* Stores all custom types defined in a set *)
+let cust_type_table = Hashtbl.create 64 
+(* Stores all custom type vars in map of "typeName#varName" --> type*)
+let cust_type_vars_table = Hashtbl.create 64
+(* Stores variables to their custom type*)
+let var_to_cust_type_table = Hashtbl.create 64
+
 let make_key fn id = fn ^ "#" ^ id
+
+let set_cust_type name = 
+  let curr = Hashtbl.find_opt cust_type_table name in 
+  let key = make_key name "" in
+  match curr with 
+  | None -> Hashtbl.add cust_type_table key key 
+  | Some _ -> raise (Failure ("Custom type " ^ name ^ "is already defined"))
+
+let set_cust_type_var name (typ, id) = 
+  let key = make_key name id in  
+  let curr = Hashtbl.find_opt cust_type_vars_table key in 
+  match curr with 
+    | None -> Hashtbl.add cust_type_vars_table key typ 
+    | Some _ -> raise (Failure ("Custom type var " ^ key ^ "is already defined"))
+
+let rec set_cust_type_vars name vars = 
+  match vars with 
+  | [] -> ignore(); 
+  | f::r -> set_cust_type_var name f; set_cust_type_vars name r 
+
+let set_var_to_cust_type cfunc var cust_type = 
+  let key = make_key cfunc var in 
+  let curr = Hashtbl.find_opt var_to_cust_type_table key in 
+  match curr with 
+  | None -> Hashtbl.add var_to_cust_type_table key cust_type 
+  | Some t -> raise (Failure ("Variable " ^ var ^ " in function " ^ cfunc ^ " already has type " ^ t ))
 
 (******* f_sym_table helpers *******)
 let set key typ tbl = 
@@ -24,6 +62,9 @@ let set_id fn id typ tbl =
 let set_fn fn typ tbl =
   let key = make_key fn "" in 
   set key typ tbl
+
+let try_get key tbl = 
+  Hashtbl.find_opt tbl key
 
 let get key tbl =
   try Hashtbl.find tbl key 
@@ -75,9 +116,21 @@ let check_func_def f =
   | ILit i -> (Int, SILit i)
   | FLit f -> (Float, SFLit f)
   | Asn (id, expr) ->
-      let typ, v = check_expr cfunc expr in 
-      set_id cfunc id typ f_sym_table;
-      (Void, SAsn (id, (typ, v)))
+      let key = make_key cfunc id in 
+      let curr = try_get key var_to_cust_type_table in (
+        match curr with 
+        | None ->  let typ, v = check_expr cfunc expr in 
+          set_id cfunc id typ f_sym_table;
+          (Void, SAsn (id, (typ, v)))
+        | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
+      )
+  | CustAsn (id, cust) ->
+    let key = make_key cfunc id in 
+    let curr = try_get key f_sym_table in (
+      match curr with 
+      | None -> set_var_to_cust_type cfunc id cust; (Void, SCustAsn (id, cust))
+      | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
+    )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
   | Swap (id1, id2) -> (Void, SSwap (id1, id2))
   | Call (fname, arg_list) ->
@@ -131,10 +184,8 @@ let check_func_def f =
   checked_func
 
 let add_custom_type c = 
-  let set_var_ids (typ, id) = set_id c.name id typ f_sym_table in
-  ignore (List.map set_var_ids c.vars);
-  set_func_param_table c.name ((List.map (function (t, _) -> t) c.vars))
-  f_param_table;
+  set_cust_type c.name;
+  set_cust_type_vars c.name c.vars;
   SCustomTypeDef ({sname=c.name; svars=c.vars})
 
 

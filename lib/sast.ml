@@ -7,6 +7,7 @@ and sx =
   | SILit of int
   | SFLit of float
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
+  | SCustAsn of string * string (* (id, custom_type) *)
   | SVar of string
   | SSwap of string * string
   | SCall of string * sexpr list 
@@ -45,6 +46,7 @@ let rec string_of_sexpr (t, e) =
   | SILit(l) -> string_of_int l
   | SFLit(l) -> string_of_float l
   | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
+  | SCustAsn(id, cust) -> "CustomAssignment # " ^ id ^ " := " ^ cust
   | SVar(id) -> id
   | SSwap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
