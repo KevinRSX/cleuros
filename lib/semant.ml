@@ -160,16 +160,37 @@ let check_func_def f =
   | CustVar(id, var) -> 
     let key = make_key cfunc id in 
     let opt_cust_type = try_get key var_to_cust_type_table in 
-    match opt_cust_type with 
-    | None -> raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
-    | Some c -> ( 
-      let var_key = make_key c id in 
-      let opt_type = try_get var_key cust_type_vars_table in 
-      match opt_type with
-      | None -> raise (Failure ("var " ^ var_key ^ " is not declared for this custom type " ^ c))
-      | Some t -> (t, SCustVar(id, var))
+    (
+      match opt_cust_type with 
+      | None -> raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
+      | Some c -> ( 
+        let var_key = make_key c id in 
+        let opt_type = try_get var_key cust_type_vars_table in 
+        match opt_type with
+        | None -> raise (Failure ("var " ^ var_key ^ " is not declared for this custom type " ^ c))
+        | Some t -> (t, SCustVar(id, var))
+        )
     )
-
+  | CustAsn(id, var , e) -> 
+    let key = make_key cfunc id in 
+    let opt_cust_type = try_get key var_to_cust_type_table in 
+    (
+      match opt_cust_type with 
+      | None ->  raise (Failure ("var " ^ key ^ " is not declared as a custom type"))
+      | Some c -> 
+        let var_key = make_key c id in 
+        let opt_type = try_get var_key cust_type_vars_table in 
+        (
+          match opt_type with 
+          | None -> raise (Failure ("var " ^ var_key ^ " is not declared for this custom type " ^ c))
+          | Some t ->
+            let typ, v = check_expr cfunc e in 
+            if t = typ then
+              (Void, SCustAsn(id, var, (typ, v))) 
+            else 
+              raise (Failure ("var " ^ var_key ^ " is being assigned to a mismatched type"))
+        )
+    )
   in
 
   let rec check_stmt_list cfunc all_stmt =
