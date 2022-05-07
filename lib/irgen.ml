@@ -15,7 +15,8 @@ let translate prog =
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
-  and f_t        = L.float_type  context in
+  and f_t        = L.float_type  context
+  and void_t     = L.void_type   context in
 
 
   (* Return the LLVM type for a MicroC type *)
@@ -23,6 +24,7 @@ let translate prog =
       A.Int   -> i32_t
     | A.Bool  -> i1_t
     | A.Float -> f_t
+    | A.Void  -> void_t
     | _ -> i32_t
   in
 
@@ -65,8 +67,10 @@ let translate prog =
       )
     in
 
-    (* Get storage location of a local assignment *)
-    let get_local_assignment_loc etype name =
+    (* Get storage location of a local assignment
+       The first function deals with the case of a new assignment.
+       The second is used by SVar, where the variable must have existed *)
+    let get_local_asn_loc etype name =
       try StringMap.find name !local_vars
       with Not_found ->
             let loc = L.build_alloca (ltype_of_typ etype) name builder in
@@ -75,27 +79,37 @@ let translate prog =
             loc
     in
 
+    let get_local_asn_loc_fast name = StringMap.find name !local_vars in
+
+    (* Entry point: expression builder *)
     let rec build_expr builder ((_, e): sexpr) = match e with
         SILit i -> L.const_int i32_t i
       | SBLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit f -> L.const_float f_t f
       | SAsn (name, (t, expr)) ->
           let e' = build_expr builder (t, expr) in
-          let store = get_local_assignment_loc t name in
+          let store = get_local_asn_loc t name in
           ignore (L.build_store e' store builder); e'
-      | _ -> L.const_int i32_t 0
+      | SVar name -> L.build_load (get_local_asn_loc_fast name) name builder;
+      | SSwap (name1, name2) ->
+          let loc1 = get_local_asn_loc_fast name1 in
+          let loc2 = get_local_asn_loc_fast name2 in
+          let v1 = L.build_load loc1 name1 builder in
+          let v2 = L.build_load loc2 name2 builder in
+          ignore (L.build_store v2 loc1 builder);
+          ignore (L.build_store v1 loc2 builder);
+          L.const_int i32_t 0 (* Null pointer will cause error, so return 0 *)
+      | _ -> L.const_int i32_t 0 (* TODO: SCustAsn*)
     in
 
-    (* Copied from MicroC *)
-    (* LLVM insists each basic block end with exactly one "terminator"
-       instruction that transfers control.  This function runs "instr builder"
-       if the current block does not already have a terminator.  Used,
-       e.g., to handle the "fall off the end of the function" case. *)
+
+    (* Copied from MicroC: Force adding terminators *)
     let add_terminal builder instr =
       match L.block_terminator (L.insertion_block builder) with
         Some _ -> ()
       | None -> ignore (instr builder) in
 
+    (* Entry point: statement builder *)
     let rec build_stmt builder = function
         SBlock sb -> List.fold_left build_stmt builder sb
       | SExpr e -> ignore (build_expr builder e); builder
