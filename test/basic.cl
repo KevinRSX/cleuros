@@ -4,4 +4,4 @@ MAIN()
 	c := 3.2
 	b := 5
 	e := 1
-	exchange b with e
+	exchange b with c
