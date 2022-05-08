@@ -9,6 +9,13 @@ MAIN()
 	x := 3 #comment
 	f := 3.5
 	y := TRUE
+	y and FALSE
+	y or TRUE
+	3.5 != 3.5
+	TRUE or TRUE
+	3 = 3
+	3 = 3.5
+	PRINT(3)
 	TEST()
 	if y 
 		3 + 5
