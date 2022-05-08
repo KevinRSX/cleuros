@@ -6,6 +6,7 @@ and sx =
   | SBLit of bool
   | SILit of int
   | SFLit of float
+  | SArrayLit of sexpr list (* list of vals, must all have the same type one of (Int, Bool, Float) *)
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
   | SCustDecl of string * string (* (id, custom_type) *)
   | SVar of string
@@ -51,6 +52,7 @@ let rec string_of_sexpr (t, e) =
     | SBLit(false) -> "FALSE"
     | SILit(l) -> string_of_int l
     | SFLit(l) -> string_of_float l
+    | SArrayLit(sexprs) -> "[" ^ (String.concat ", " (List.map string_of_sexpr sexprs)) ^ "]"
     | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
     | SCustDecl(id, cust) -> "CustomAssignment # " ^ id ^ " := " ^ cust
     | SVar(id) -> id

@@ -251,7 +251,26 @@ let check_func_def f =
             raise (Failure ("Mismatched types on array assignment " ^ key ^ ", expected " ^ string_of_typ arr_typ ^ " but received " ^ string_of_typ asn_typ))
           else
              (Void, SArrayMemberAsn(id, (loc_typ, loc_sexpr), (asn_typ, asn_val)))
-      ) 
+      )
+    | ArrayLit(exprs) ->
+      match exprs with 
+      | [] -> raise (Failure ("No empty lists allowed"))
+      | lst -> (
+        let sexprs = List.map (check_expr cfunc) exprs in 
+        if 
+          List.for_all (fun (expr_typ, _) -> expr_typ = Int) sexprs || 
+          List.for_all (fun (expr_typ, _) -> expr_typ = Float) sexprs ||
+          List.for_all (fun (expr_typ, _) -> expr_typ = Bool) sexprs then 
+          (
+          let arr_type,_  = List.hd sexprs in 
+            (
+            match arr_type with 
+            Int | Bool | Float -> (Array arr_type, SArrayLit(sexprs))
+            | _ -> raise (Failure("cleuros only supports arrays of type {Int, Bool, Float}"))
+            )
+          )
+        else raise (Failure ("Array Literal is not composed of expressions that all have the same type one of {Int, Bool, Float"))
+      )
   in
 
   let rec check_stmt_list cfunc all_stmt =

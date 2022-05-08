@@ -11,3 +11,5 @@ MAIN()
 	let abc be 10 int array
 	abc[3] := 3
 	3+3*abc[3]
+	myArr := [3, 5, 2+1]
+	[4,5,5,5,5,5,5]
