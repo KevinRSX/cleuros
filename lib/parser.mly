@@ -126,6 +126,8 @@ expr:
 | BOOLVAR             { BLit($1) }
 | LET VARIABLE BE CUSTOMTYPENAME { CustDecl($2, $4) }
 | LET VARIABLE BE INTLITERAL typ ARRAY { ArrayDecl($2, $4, $5)}
+| VARIABLE LBRACKET expr RBRACKET { ArrayAccess($1, $3)}
+| VARIABLE LBRACKET expr RBRACKET ASNTO expr { ArrayMemberAsn($1, $3, $6)}
 | VARIABLE ASNTO expr { Asn($1, $3) }
 | VARIABLE PERIOD VARIABLE ASNTO expr { CustAsn ($1, $3, $5)}
 | EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}

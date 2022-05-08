@@ -13,6 +13,8 @@ and sx =
   | SCall of string * sexpr list 
   | SCustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
   | SCustAsn of string * string * sexpr  (* id, var, expr *)
+  | SArrayAccess of string * sexpr (* name, loc should be int *)
+  | SArrayMemberAsn of string * sexpr * sexpr (* name, loc, val *)
   | SArrayDecl of string * int * typ
 
 type sstmt =
@@ -57,6 +59,8 @@ let rec string_of_sexpr (t, e) =
     | SCustVar(id, var) -> id ^ "." ^ var
     | SCustAsn(id, var, e) -> "Assignment # " ^ id ^ "." ^ var ^ " := " ^ (string_of_sexpr e)
     | SArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
+    | SArrayAccess (id, loc) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]"
+    | SArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]" ^ " = " ^ (string_of_sexpr v)
   ) ^ ")"
 
 let rec string_of_sstmt = function

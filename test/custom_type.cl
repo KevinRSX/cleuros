@@ -9,4 +9,5 @@ newtype MyOtherCustomType
 
 MAIN()
 	let abc be 10 int array
-	3+3
+	abc[3] := 3
+	3+3*abc[3]

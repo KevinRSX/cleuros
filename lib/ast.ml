@@ -15,6 +15,8 @@ type expr =
   | CustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
   | CustAsn of string * string * expr
   | ArrayDecl of string * int * typ (* name, size, type *)
+  | ArrayAccess of string * expr (* name, loc should be int *)
+  | ArrayMemberAsn of string * expr * expr (* name, loc, val *)
   | Swap of string * string
   | Call of string * expr list 
 
@@ -50,7 +52,7 @@ let string_of_bop = function
   | Mul -> "*"
   | Div -> "/"
   | Mod -> "%"
-  | Eq -> "="
+  | Eq -> "=="
   | Neq -> "!="
   | Less -> "<"
   | And -> "&&"
@@ -70,14 +72,16 @@ let rec string_of_expr = function
   | BLit(false) -> "false"
   | ILit(l) -> string_of_int l 
   | FLit(l) -> string_of_float l
-  | Asn(id, e) -> id ^ " = " ^ string_of_expr e 
+  | Asn(id, e) -> id ^ " := " ^ string_of_expr e 
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | CustDecl(id, cust_type) -> id ^ " is " ^ cust_type
-  | CustAsn(id, var, e) -> id ^ "." ^ var ^ " = " ^ string_of_expr e
+  | CustAsn(id, var, e) -> id ^ "." ^ var ^ " := " ^ string_of_expr e
   | CustVar(id, var) -> id ^ "." ^ var 
   | ArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
+  | ArrayAccess (id, loc) -> id ^ "[" ^ (string_of_expr loc) ^ "]"
+  | ArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_expr loc) ^ "]" ^ " := " ^ (string_of_expr v)
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
