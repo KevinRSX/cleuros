@@ -13,6 +13,7 @@ and sx =
   | SCall of string * sexpr list 
   | SCustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
   | SCustAsn of string * string * sexpr  (* id, var, expr *)
+  | SArrayDecl of string * int * typ
 
 type sstmt =
     SBlock of sstmt list 
@@ -55,6 +56,7 @@ let rec string_of_sexpr (t, e) =
     | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
     | SCustVar(id, var) -> id ^ "." ^ var
     | SCustAsn(id, var, e) -> "Assignment # " ^ id ^ "." ^ var ^ " := " ^ (string_of_sexpr e)
+    | SArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
   ) ^ ")"
 
 let rec string_of_sstmt = function

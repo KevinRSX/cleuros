@@ -14,6 +14,7 @@ type expr =
   | Var of string
   | CustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
   | CustAsn of string * string * expr
+  | ArrayDecl of string * int * typ (* name, size, type *)
   | Swap of string * string
   | Call of string * expr list 
 
@@ -56,6 +57,13 @@ let string_of_bop = function
   | Or -> "||"
   | Greater -> ">"
 
+let string_of_typ = function
+    Int -> "int"
+  | Float -> "float"
+  | Bool -> "bool"
+  | Void -> "void"
+  | Temp -> "Temp"
+
 let rec string_of_expr = function 
     Binop(e1, b, e2) -> string_of_expr e1 ^ string_of_bop b ^ string_of_expr e2
   | BLit(true) -> "true"
@@ -69,6 +77,7 @@ let rec string_of_expr = function
   | CustDecl(id, cust_type) -> id ^ " is " ^ cust_type
   | CustAsn(id, var, e) -> id ^ "." ^ var ^ " = " ^ string_of_expr e
   | CustVar(id, var) -> id ^ "." ^ var 
+  | ArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
@@ -77,13 +86,6 @@ let rec string_of_stmt = function
   | While(cond, stmt) -> "while " ^ string_of_expr cond ^ "\n" ^ string_of_stmt stmt
   | Return(e) -> "return " ^ string_of_expr e ^ "[;]\n"
   | For(id, lo, hi, stmt) -> "for " ^ id ^ "= " ^ (string_of_int lo) ^ " to " ^ (string_of_int hi) ^ (string_of_stmt stmt)
-
-let string_of_typ = function
-    Int -> "int"
-  | Float -> "float"
-  | Bool -> "bool"
-  | Void -> "void"
-  | Temp -> "Temp"
 
 let string_of_param_type = function
   | (typ, param) -> "Param # (" ^ string_of_typ typ ^ ": " ^ param ^ ")"

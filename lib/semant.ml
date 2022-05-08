@@ -18,6 +18,16 @@ let cust_type_vars_table = Hashtbl.create 64
 (* Stores variables to their custom type*)
 let var_to_cust_type_table = Hashtbl.create 64
 
+let arr_var_to_size_type_table = Hashtbl.create 64
+
+let set_arr k v = 
+  let curr = Hashtbl.find_opt arr_var_to_size_type_table k in 
+  match curr with 
+  | None -> Hashtbl.add arr_var_to_size_type_table k v  
+  | Some (size, t) -> raise 
+    (Failure ("identifier " ^ k ^ " is already declared as arr of type " ^ (string_of_typ t) ^
+               " and size " ^ string_of_int size))  
+
 let make_key fn id = fn ^ "#" ^ id
 
 let set_cust_type name = 
@@ -81,6 +91,10 @@ let get_fn fn tbl =
 
 let builtin = [
   FuncDef {rtyp = Void; fname = "PRINT"; args = [(Int, "valToPrint")]; body = [] };
+  (* CustomTypeDef { name = "intArray"; vars = [(Int, "length"); (Int, "access")]}; 
+  CustomTypeDef { name = "boolArray"; vars = [(Int, "length"); (Bool, "access")]}; 
+  CustomTypeDef { name = "floatArray"; vars = [(Int, "length"); (Float, "access")]}; 
+  CustomTypeDef { name = "emptyArray"; vars = [(Int, "length"); (Void, "access")]}; *)
 ]
 
 (******* f_param_table helpers *******)
@@ -207,6 +221,10 @@ let check_func_def f =
               ^ (string_of_typ typ) ^ " but received " ^ (string_of_typ t)))
         )
     )
+  | ArrayDecl(id, size, t) -> 
+    let key = make_key cfunc id in 
+    set_arr key (size, t); (Void, SArrayDecl(id, size, t))
+
   in
 
   let rec check_stmt_list cfunc all_stmt =
