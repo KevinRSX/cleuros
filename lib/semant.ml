@@ -160,9 +160,15 @@ let check_func_def f =
       let key = make_key cfunc id in 
       let curr = try_get key var_to_cust_type_table in (
         match curr with 
-        | None ->  let typ, v = check_expr cfunc expr in 
-          set_id cfunc id typ f_sym_table;
-          (Void, SAsn (id, (typ, v)))
+        | None ->  let typ, v = check_expr cfunc expr in (
+          match typ with 
+          | Array arr_typ -> (match v with 
+              | SArrayLit sexprs -> let size = List.length sexprs in 
+                set_arr key (size, arr_typ); (Void, SArrayDecl(id, size, arr_typ, sexprs))
+              | _ -> raise (Failure("Unexpected stype with Array"))
+              )
+          | _ -> set_id cfunc id typ f_sym_table; (Void, SAsn (id, (typ, v)))
+        )
         | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
       )
   | CustDecl (id, cust) ->
@@ -222,7 +228,7 @@ let check_func_def f =
     )
   | ArrayDecl(id, size, t) -> 
     let key = make_key cfunc id in 
-    set_arr key (size, t); (Void, SArrayDecl(id, size, t))
+    set_arr key (size, t); (Void, SArrayDecl(id, size, t, []))
   | ArrayAccess(id, loc_expr) -> 
     let key = make_key cfunc id in 
     let loc_typ, loc_sexpr = check_expr cfunc loc_expr in 

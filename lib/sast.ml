@@ -6,7 +6,8 @@ and sx =
   | SBLit of bool
   | SILit of int
   | SFLit of float
-  | SArrayLit of sexpr list (* list of vals, must all have the same type one of (Int, Bool, Float) *)
+  | SArrayLit of sexpr list 
+  (* list of vals, must all have the same type one of (Int, Bool, Float) *)
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
   | SCustDecl of string * string (* (id, custom_type) *)
   | SVar of string
@@ -16,7 +17,7 @@ and sx =
   | SCustAsn of string * string * sexpr  (* id, var, expr *)
   | SArrayAccess of string * sexpr (* name, loc should be int *)
   | SArrayMemberAsn of string * sexpr * sexpr (* name, loc, val *)
-  | SArrayDecl of string * int * typ
+  | SArrayDecl of string * int * typ * sexpr list (* name, size, arr_type, values *)
 
 type sstmt =
     SBlock of sstmt list 
@@ -60,7 +61,7 @@ let rec string_of_sexpr (t, e) =
     | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
     | SCustVar(id, var) -> id ^ "." ^ var
     | SCustAsn(id, var, e) -> "Assignment # " ^ id ^ "." ^ var ^ " := " ^ (string_of_sexpr e)
-    | SArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
+    | SArrayDecl(id, size, t, values) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size) ^ " and values " ^ "[" ^ (String.concat ", " (List.map string_of_sexpr values)) ^ "]"
     | SArrayAccess (id, loc) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]"
     | SArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]" ^ " = " ^ (string_of_sexpr v)
   ) ^ ")"
