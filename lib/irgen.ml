@@ -81,8 +81,19 @@ let translate prog =
 
     let get_local_asn_loc_fast name = StringMap.find name !local_vars in
 
+
+    (* Decouples type casting from evaluation
+       The rule is you must cast support values, or there will be errros
+       How is that supported? Because you have type checked! *)
+    let cast_float i =
+      let ti = L.type_of i in
+      if ti = i32_t then L.const_intcast i f_t true
+      else i
+    in 
+
+
     (* Entry point: expression builder *)
-    let rec build_expr builder ((_, e): sexpr) = match e with
+    let rec build_expr builder ((t, e): sexpr) = match e with
         SILit i -> L.const_int i32_t i
       | SBLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit f -> L.const_float f_t f
@@ -99,7 +110,38 @@ let translate prog =
           ignore (L.build_store v2 loc1 builder);
           ignore (L.build_store v1 loc2 builder);
           L.const_int i32_t 0 (* Null pointer will cause error, so return 0 *)
-      | _ -> L.const_int i32_t 0 (* TODO: SCustAsn*)
+      | SBinop ((t1, e1), bop, (t2, e2)) ->
+          let e1' = build_expr builder (t1, e1)
+          and e2' = build_expr builder (t2, e2) in
+          let build_int bop el1 el2 = (match bop with
+              A.Add -> L.build_add
+            | A.Sub -> L.build_sub
+            | A.Mul -> L.build_mul
+            | A.Div -> L.build_sdiv
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "itmp" builder in (* I love ARM *)
+          let build_float bop el1 el2 = (match bop with
+              A.Add -> L.build_fadd
+            | A.Sub -> L.build_fsub
+            | A.Mul -> L.build_fmul
+            | A.Div -> L.build_fdiv
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "ftmp" builder in
+          let build_bool bop el1 el2 = (match bop with
+              A.Neq     -> L.build_icmp L.Icmp.Ne
+            | A.Eq      -> L.build_icmp L.Icmp.Eq
+            | A.Less    -> L.build_icmp L.Icmp.Slt
+            | A.Greater -> L.build_icmp L.Icmp.Sgt
+            | A.And     -> L.build_and
+            | A.Or      -> L.build_or
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "btmp" builder in
+          (match t with
+              Int -> build_int bop e1' e2'
+            | Float -> build_float bop (cast_float e1') (cast_float e2')
+            | _ -> build_bool bop e1' e2'
+          )
+      | _ -> L.const_int i32_t 0 (* TODO: SCust* *)
     in
 
 
