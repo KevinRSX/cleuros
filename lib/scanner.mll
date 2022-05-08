@@ -64,7 +64,6 @@ rule tokenize = parse
 (*Comment*)
 | '#'  { comment lexbuf }
 (*Built-in functions*)
-| "print"     { PRINT }
 | "exchange"  { EXCHANGE }
 | "with"      { WITH }
 | "be"        { BE }
