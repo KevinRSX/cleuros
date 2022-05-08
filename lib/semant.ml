@@ -80,7 +80,7 @@ let get_fn fn tbl =
   get key tbl
 
 let builtin = [
-  FuncDef {rtyp = Void; fname = "PRINT"; args = [(Int, "valToPrint")]; body = [] };
+  FuncDef {rtyp = Void; fname = "print"; args = [(Int, "valToPrint")]; body = [] };
 ]
 
 (******* f_param_table helpers *******)
