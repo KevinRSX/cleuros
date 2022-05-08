@@ -81,8 +81,19 @@ let translate prog =
 
     let get_local_asn_loc_fast name = StringMap.find name !local_vars in
 
+
+    (* Decouples type casting from evaluation
+       The rule is you must cast support values, or there will be errros
+       How is that supported? Because you have type checked! *)
+    let cast_float i =
+      let ti = L.type_of i in
+      if ti = i32_t then L.const_intcast i f_t true
+      else i
+    in 
+
+
     (* Entry point: expression builder *)
-    let rec build_expr builder ((_, e): sexpr) = match e with
+    let rec build_expr builder ((t, e): sexpr) = match e with
         SILit i -> L.const_int i32_t i
       | SBLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit f -> L.const_float f_t f
@@ -99,7 +110,43 @@ let translate prog =
           ignore (L.build_store v2 loc1 builder);
           ignore (L.build_store v1 loc2 builder);
           L.const_int i32_t 0 (* Null pointer will cause error, so return 0 *)
-      | _ -> L.const_int i32_t 0 (* TODO: SCustAsn*)
+      | SBinop ((t1, e1), bop, (t2, e2)) ->
+          let e1' = build_expr builder (t1, e1)
+          and e2' = build_expr builder (t2, e2) in
+          let build_int bop el1 el2 = (match bop with
+              A.Add -> L.build_add
+            | A.Sub -> L.build_sub
+            | A.Mul -> L.build_mul
+            | A.Div -> L.build_sdiv
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "itmp" builder in (* I love ARM *)
+          let build_float bop el1 el2 = (match bop with
+              A.Add -> L.build_fadd
+            | A.Sub -> L.build_fsub
+            | A.Mul -> L.build_fmul
+            | A.Div -> L.build_fdiv
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "ftmp" builder in
+          let build_bool bop el1 el2 = (match bop with
+              A.Neq     -> L.build_icmp L.Icmp.Ne
+            | A.Eq      -> L.build_icmp L.Icmp.Eq
+            | A.Less    -> L.build_icmp L.Icmp.Slt
+            | A.Greater -> L.build_icmp L.Icmp.Sgt
+            | A.And     -> L.build_and
+            | A.Or      -> L.build_or
+            | _ -> raise (Failure "Opeartion not permitted for the given type")
+          ) el1 el2 "btmp" builder in
+          (match t with
+              Int -> build_int bop e1' e2'
+            | Float -> build_float bop (cast_float e1') (cast_float e2')
+            | _ -> build_bool bop e1' e2'
+          )
+      | SCall(f, args) ->
+          let (fdef, fdecl) = StringMap.find f function_decls in
+          let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
+          let result = f ^ "_result" in
+          L.build_call fdef (Array.of_list llargs) result builder
+      | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
 
@@ -113,11 +160,50 @@ let translate prog =
     let rec build_stmt builder = function
         SBlock sb -> List.fold_left build_stmt builder sb
       | SExpr e -> ignore (build_expr builder e); builder
-      | _ -> builder
+      | SReturn e -> ignore(L.build_ret (build_expr builder e) builder); builder
+      | SIf (predicate, then_stmt, else_stmt) ->
+          let bool_val = build_expr builder predicate in
+
+          let then_bb = L.append_block context "then" the_function in
+          ignore (build_stmt (L.builder_at_end context then_bb) then_stmt);
+          let else_bb = L.append_block context "else" the_function in
+          ignore (build_stmt (L.builder_at_end context else_bb) else_stmt);
+
+          let end_bb = L.append_block context "if_end" the_function in
+          let build_br_end = L.build_br end_bb in
+          add_terminal (L.builder_at_end context then_bb) build_br_end;
+          add_terminal (L.builder_at_end context else_bb) build_br_end;
+
+          ignore(L.build_cond_br bool_val then_bb else_bb builder);
+          L.builder_at_end context end_bb
+      | SWhile (predicate, body) ->
+          let while_bb = L.append_block context "while" the_function in
+          let build_br_while = L.build_br while_bb in (* br while partial func *)
+
+          (* Jump to while *)
+          ignore (build_br_while builder);
+
+          (* Branch in while header *)
+          let while_builder = L.builder_at_end context while_bb in
+          let bool_val = build_expr while_builder predicate in
+
+          (* Build while body *)
+          let while_body_bb =
+            L.append_block context "while_body" the_function in
+          let body_builder = L.builder_at_end context while_body_bb in
+          let body_builder = build_stmt body_builder body in
+          add_terminal body_builder build_br_while;
+
+          let while_end_bb = L.append_block context "while_end" the_function in
+          ignore (L.build_cond_br bool_val while_body_bb while_end_bb
+                  while_builder);
+
+          L.builder_at_end context while_end_bb
+      | _ -> raise (Failure "Statement cannot be translated")
     in
 
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in
-    add_terminal func_builder (L.build_ret (L.const_int i32_t 0))
+    add_terminal func_builder (L.build_ret_void)
   in
 
   (***************************************************************************)
@@ -198,11 +284,16 @@ let translate prog =
     let func = L.define_function "main" ftype the_module in
     let entry_block = L.entry_block func in
     let builder = L.builder_at_end context entry_block in
-    let int_format_str = L.build_global_stringptr "Mysterious number: %d\n" "fmt"
-        builder in
+    let mysterious_str = L.build_global_stringptr "Mysterious number: %d\n"
+      "mysterious" builder in
+    let bar_str = L.build_global_stringptr "Bar returns: %d\n" "bar" builder in
     let gcd_res = L.build_call gcd_ref_func [|L.const_int i32_t 10; L.const_int
     i32_t 20|] "gcd_res" builder in
-    let _ = L.build_call printf_func [|int_format_str; gcd_res|]
+    let _ = L.build_call printf_func [|mysterious_str; gcd_res|]
+      "res" builder in
+    let bar_func = StringMap.find "BAR" function_decls in
+    let bar_res = L.build_call (fst bar_func) [||] "bar_res" builder in
+    let _ = L.build_call printf_func [|bar_str; bar_res|]
       "res" builder in
     L.build_ret gcd_res builder
   in

@@ -3,10 +3,6 @@
 build: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
 	ocamlbuild -pkg llvm cleuros.native
 
-basic: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
-	ocamlbuild -pkg llvm cleuros.native \
-		&& ./cleuros.native -l ../test/basic.cl > basic.out
-
 llvm: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
 	ocamlbuild -pkg llvm cleuros.native \
 		&& ./cleuros.native -l ../test/whitespace.cl > whitespace.out
