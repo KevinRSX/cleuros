@@ -106,10 +106,13 @@ let check_func_def f =
     let err = "illegal binary op" in 
     if t1 = t2 then 
       let t = match bop with 
-        Add | Sub | Mul | Div | Mod when t1 = Int -> Int 
-      | Add | Sub | Mul | Div | Mod when t1 = Float -> Float 
-      | Add | Sub | Mul | Div | Mod when t1 = Bool -> raise (Failure err)
-      | Neq | Less | And | Or | Eq | Greater -> Bool
+        Add | Sub | Mul | Div | Mod | Less| Greater when t1 = Int   -> Int 
+      | Or  | And                                   when t1 = Int   -> raise (Failure err)
+      | Add | Sub | Mul | Div | Less| Greater       when t1 = Float -> Float 
+      | Or  | And                                   when t1 = Float -> raise (Failure err) 
+      | Add | Sub | Mul | Div | Mod | Less| Greater when t1 = Bool  -> raise (Failure err)
+      | Or  | And                                   when t1 = Bool  -> Bool
+      | Neq | Eq                                                    -> Bool
       | _ -> raise (Failure err)
       in
       (t, SBinop(se1, bop, se2))
@@ -117,7 +120,8 @@ let check_func_def f =
       if t1 = Float then
         if t2 = Int then
           let t = match bop with
-            Add | Sub | Mul | Div | Mod -> Float
+              Add | Sub | Mul | Div -> Float
+            | Neq | Eq -> Bool
           | _ -> raise (Failure err)
           in
           (t, SBinop(se1, bop, se2))
@@ -126,7 +130,8 @@ let check_func_def f =
         if t1 = Int then
           if t2 = Float then
             let t = match bop with
-              Add | Sub | Mul | Div | Mod -> Float
+                Add | Sub | Mul | Div -> Float
+              | Neq | Eq -> Bool
             | _ -> raise (Failure err)
             in
             (t, SBinop(se1, bop, se2))
