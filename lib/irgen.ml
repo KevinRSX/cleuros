@@ -141,6 +141,11 @@ let translate prog =
             | Float -> build_float bop (cast_float e1') (cast_float e2')
             | _ -> build_bool bop e1' e2'
           )
+      | SCall(f, args) ->
+          let (fdef, fdecl) = StringMap.find f function_decls in
+          let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
+          let result = f ^ "_result" in
+          L.build_call fdef (Array.of_list llargs) result builder
       | _ -> L.const_int i32_t 0 (* TODO: SCust* *)
     in
 
@@ -155,6 +160,7 @@ let translate prog =
     let rec build_stmt builder = function
         SBlock sb -> List.fold_left build_stmt builder sb
       | SExpr e -> ignore (build_expr builder e); builder
+      | SReturn e -> ignore(L.build_ret (build_expr builder e) builder); builder
       | _ -> builder
     in
 
@@ -246,6 +252,10 @@ let translate prog =
     i32_t 20|] "gcd_res" builder in
     let _ = L.build_call printf_func [|int_format_str; gcd_res|]
       "res" builder in
+    (* let bar_func = StringMap.find "BAR" function_decls in *)
+    (* let bar_res = L.build_call (fst bar_func) [||] "bar_res" builder in *)
+    (* let _ = L.build_call printf_func [|int_format_str; bar_res|] *)
+    (*   "res" builder in *)
     L.build_ret gcd_res builder
   in
 

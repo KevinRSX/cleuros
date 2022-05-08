@@ -5,7 +5,7 @@ build: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
 
 basic: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
 	ocamlbuild -pkg llvm cleuros.native \
-		&& ./cleuros.native -l ../test/add.cl > add.out
+		&& ./cleuros.native -l ../test/simple_func.cl > simple_func.out
 
 llvm: ast.ml parser.mly scanner.mll irgen.ml cleuros.ml test_helper.ml
 	ocamlbuild -pkg llvm cleuros.native \
