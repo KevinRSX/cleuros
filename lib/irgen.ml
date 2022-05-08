@@ -203,7 +203,7 @@ let translate prog =
     in
 
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in
-    add_terminal func_builder (L.build_ret (L.const_int i32_t 0))
+    add_terminal func_builder (L.build_ret_void)
   in
 
   (***************************************************************************)
