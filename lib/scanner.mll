@@ -43,6 +43,9 @@ rule tokenize = parse
 | '*'  { TIMES }
 | '/'  { DIVIDE }
 | '%'  { MOD }
+(*Boolean Ops*)
+| "and" { AND }
+| "or"  { OR }
 (*Assignment*)
 | ":=" { ASNTO }
 (*Comparison*)
@@ -51,7 +54,6 @@ rule tokenize = parse
 | '='  { ISEQUALTO }
 | "!=" { NOTEQUAL }
 (*Punctuation*)
-| ';'  { SEMI }
 | '('  { LPAREN }
 | ')'  { RPAREN }
 | '{'  { LBRACE }
