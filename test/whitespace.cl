@@ -11,6 +11,10 @@ MAIN()
 	y := TRUE
 	y and FALSE
 	y or TRUE
+	3.5 != 3.5
+	TRUE or TRUE
+	3 = 3
+	3 = 3.5
 	TEST()
 	if y 
 		3 + 5
