@@ -2,13 +2,14 @@ type intop = Add | Sub | Mul | Div | Mod
 type boolop =  Neq | Less | And | Or | Eq | Greater
 type bop = Add | Sub | Mul | Div | Mod | Neq | Less | And | Or | Eq | Greater
 
-type typ = Int | Float | Bool | Void | Temp (* No Char/String support now *)
+type typ = Int | Float | Bool | Void | Temp | Array of typ(* No Char/String support now *)
 
 type expr =
     Binop of expr * bop * expr
   | BLit of bool
   | ILit of int
   | FLit of float
+  | ArrayLit of expr list (* list of values *)
   | Asn of string * expr
   | CustDecl of string * string 
   | Var of string
@@ -59,12 +60,13 @@ let string_of_bop = function
   | Or -> "||"
   | Greater -> ">"
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Float -> "float"
   | Bool -> "bool"
   | Void -> "void"
   | Temp -> "Temp"
+  | Array typ -> "Array of " ^ (string_of_typ typ)
 
 let rec string_of_expr = function 
     Binop(e1, b, e2) -> string_of_expr e1 ^ string_of_bop b ^ string_of_expr e2
@@ -72,6 +74,7 @@ let rec string_of_expr = function
   | BLit(false) -> "false"
   | ILit(l) -> string_of_int l 
   | FLit(l) -> string_of_float l
+  | ArrayLit(exprs) -> "[" ^ (String.concat ", " (List.map string_of_expr exprs)) ^ "]"
   | Asn(id, e) -> id ^ " := " ^ string_of_expr e 
   | Var(id) -> id 
   | Swap(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"

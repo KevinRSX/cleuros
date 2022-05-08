@@ -124,6 +124,7 @@ expr:
 | INTLITERAL          { ILit($1) }
 | FLOATLITERAL        { FLit($1) }
 | BOOLVAR             { BLit($1) }
+| LBRACKET args_opt RBRACKET { ArrayLit($2) }
 | LET VARIABLE BE CUSTOMTYPENAME { CustDecl($2, $4) }
 | LET VARIABLE BE INTLITERAL typ ARRAY { ArrayDecl($2, $4, $5)}
 | VARIABLE LBRACKET expr RBRACKET { ArrayAccess($1, $3)}

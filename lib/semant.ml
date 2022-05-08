@@ -160,9 +160,15 @@ let check_func_def f =
       let key = make_key cfunc id in 
       let curr = try_get key var_to_cust_type_table in (
         match curr with 
-        | None ->  let typ, v = check_expr cfunc expr in 
-          set_id cfunc id typ f_sym_table;
-          (Void, SAsn (id, (typ, v)))
+        | None ->  let typ, v = check_expr cfunc expr in (
+          match typ with 
+          | Array arr_typ -> (match v with 
+              | SArrayLit sexprs -> let size = List.length sexprs in 
+                set_arr key (size, arr_typ); (Void, SArrayDecl(id, size, arr_typ, sexprs))
+              | _ -> raise (Failure("Unexpected stype with Array"))
+              )
+          | _ -> set_id cfunc id typ f_sym_table; (Void, SAsn (id, (typ, v)))
+        )
         | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
       )
   | CustDecl (id, cust) ->
@@ -222,7 +228,7 @@ let check_func_def f =
     )
   | ArrayDecl(id, size, t) -> 
     let key = make_key cfunc id in 
-    set_arr key (size, t); (Void, SArrayDecl(id, size, t))
+    set_arr key (size, t); (Void, SArrayDecl(id, size, t, []))
   | ArrayAccess(id, loc_expr) -> 
     let key = make_key cfunc id in 
     let loc_typ, loc_sexpr = check_expr cfunc loc_expr in 
@@ -251,7 +257,26 @@ let check_func_def f =
             raise (Failure ("Mismatched types on array assignment " ^ key ^ ", expected " ^ string_of_typ arr_typ ^ " but received " ^ string_of_typ asn_typ))
           else
              (Void, SArrayMemberAsn(id, (loc_typ, loc_sexpr), (asn_typ, asn_val)))
-      ) 
+      )
+    | ArrayLit(exprs) ->
+      match exprs with 
+      | [] -> raise (Failure ("No empty lists allowed"))
+      | lst -> (
+        let sexprs = List.map (check_expr cfunc) exprs in 
+        if 
+          List.for_all (fun (expr_typ, _) -> expr_typ = Int) sexprs || 
+          List.for_all (fun (expr_typ, _) -> expr_typ = Float) sexprs ||
+          List.for_all (fun (expr_typ, _) -> expr_typ = Bool) sexprs then 
+          (
+          let arr_type,_  = List.hd sexprs in 
+            (
+            match arr_type with 
+            Int | Bool | Float -> (Array arr_type, SArrayLit(sexprs))
+            | _ -> raise (Failure("cleuros only supports arrays of type {Int, Bool, Float}"))
+            )
+          )
+        else raise (Failure ("Array Literal is not composed of expressions that all have the same type one of {Int, Bool, Float"))
+      )
   in
 
   let rec check_stmt_list cfunc all_stmt =
