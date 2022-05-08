@@ -61,6 +61,8 @@ rule tokenize = parse
 | ','  { COMMA }
 | ':'  { COLON }
 | '.'  { PERIOD }
+| '['  { LBRACKET }
+| ']'  { RBRACKET }
 (*Comment*)
 | '#'  { comment lexbuf }
 (*Built-in functions*)
@@ -85,6 +87,7 @@ rule tokenize = parse
 | fdigit as lit { FLOATLITERAL(float_of_string lit) }
 | (fdigit | digit+) exp '-'? digit+ as lit { FLOATLITERAL(float_of_string lit) }
 (*Custom Types*)
+| "array"     { ARRAY }
 | "newtype"   { NEWTYPE }
 | upper(lower)+(letter)* as name { CUSTOMTYPENAME(name)}
 | "let"       { LET }

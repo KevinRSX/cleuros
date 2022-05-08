@@ -18,6 +18,16 @@ let cust_type_vars_table = Hashtbl.create 64
 (* Stores variables to their custom type*)
 let var_to_cust_type_table = Hashtbl.create 64
 
+let arr_var_to_size_type_table = Hashtbl.create 64
+
+let set_arr k v = 
+  let curr = Hashtbl.find_opt arr_var_to_size_type_table k in 
+  match curr with 
+  | None -> Hashtbl.add arr_var_to_size_type_table k v  
+  | Some (size, t) -> raise 
+    (Failure ("identifier " ^ k ^ " is already declared as arr of type " ^ (string_of_typ t) ^
+               " and size " ^ string_of_int size))  
+
 let make_key fn id = fn ^ "#" ^ id
 
 let set_cust_type name = 
@@ -31,8 +41,7 @@ let set_cust_type_var name (typ, id) =
   let key = make_key name id in  
   let curr = Hashtbl.find_opt cust_type_vars_table key in 
   match curr with 
-    | None -> print_endline (key ^ ": " ^ string_of_typ typ);
-      Hashtbl.add cust_type_vars_table key typ 
+    | None -> Hashtbl.add cust_type_vars_table key typ 
     | Some _ -> raise (Failure ("Custom type var " ^ key ^ "is already defined"))
 
 let rec set_cust_type_vars name vars = 
@@ -81,6 +90,10 @@ let get_fn fn tbl =
 
 let builtin = [
   FuncDef {rtyp = Void; fname = "PRINT"; args = [(Int, "valToPrint")]; body = [] };
+  (* CustomTypeDef { name = "intArray"; vars = [(Int, "length"); (Int, "access")]}; 
+  CustomTypeDef { name = "boolArray"; vars = [(Int, "length"); (Bool, "access")]}; 
+  CustomTypeDef { name = "floatArray"; vars = [(Int, "length"); (Float, "access")]}; 
+  CustomTypeDef { name = "emptyArray"; vars = [(Int, "length"); (Void, "access")]}; *)
 ]
 
 (******* f_param_table helpers *******)
@@ -207,6 +220,38 @@ let check_func_def f =
               ^ (string_of_typ typ) ^ " but received " ^ (string_of_typ t)))
         )
     )
+  | ArrayDecl(id, size, t) -> 
+    let key = make_key cfunc id in 
+    set_arr key (size, t); (Void, SArrayDecl(id, size, t))
+  | ArrayAccess(id, loc_expr) -> 
+    let key = make_key cfunc id in 
+    let loc_typ, loc_sexpr = check_expr cfunc loc_expr in 
+    if loc_typ != Int then 
+      raise (Failure ("Array access argument for " ^ key ^ " must be int, found: " ^ string_of_sexpr (loc_typ, loc_sexpr)))
+    else 
+      let curr = try_get key arr_var_to_size_type_table in 
+      (
+        match curr with 
+        | None -> raise (Failure ("No array " ^ key ^ " declared"))
+        | Some (_, arr_typ) -> (arr_typ, SArrayAccess(id, (loc_typ, loc_sexpr)))
+      )
+  | ArrayMemberAsn(id, loc_expr, asn_expr) -> 
+    let key  = make_key cfunc id in 
+    let loc_typ, loc_sexpr = check_expr cfunc loc_expr in 
+    if loc_typ != Int then 
+      raise (Failure ("Array access argument for " ^ key ^ " must be int, found: " ^ string_of_sexpr (loc_typ, loc_sexpr)))
+    else  
+      let curr = try_get key arr_var_to_size_type_table in
+      (
+        match curr with
+        | None -> raise (Failure ("No array " ^ key ^ " declared"))
+        | Some (_, arr_typ) -> 
+          let asn_typ, asn_val = check_expr cfunc asn_expr in
+          if arr_typ != asn_typ then 
+            raise (Failure ("Mismatched types on array assignment " ^ key ^ ", expected " ^ string_of_typ arr_typ ^ " but received " ^ string_of_typ asn_typ))
+          else
+             (Void, SArrayMemberAsn(id, (loc_typ, loc_sexpr), (asn_typ, asn_val)))
+      ) 
   in
 
   let rec check_stmt_list cfunc all_stmt =

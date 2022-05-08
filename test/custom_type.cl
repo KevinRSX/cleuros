@@ -8,8 +8,6 @@ newtype MyOtherCustomType
 	let mybool be a bool
 
 MAIN()
-	let a be MyCustomType  # SCustDecl
-	let myother be MyOtherCustomType
-	myother.abc := 3 + 5
-	myother.mybool := TRUE
-	a.b := myother.mybool
+	let abc be 10 int array
+	abc[3] := 3
+	3+3*abc[3]
