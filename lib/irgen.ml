@@ -146,7 +146,7 @@ let translate prog =
           let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
           let result = f ^ "_result" in
           L.build_call fdef (Array.of_list llargs) result builder
-      | _ -> L.const_int i32_t 0 (* TODO: SCust* *)
+      | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
 
@@ -161,7 +161,23 @@ let translate prog =
         SBlock sb -> List.fold_left build_stmt builder sb
       | SExpr e -> ignore (build_expr builder e); builder
       | SReturn e -> ignore(L.build_ret (build_expr builder e) builder); builder
-      | _ -> builder
+      | SIf (predicate, then_stmt, else_stmt) ->
+          let bool_val = build_expr builder predicate in
+
+          let then_bb = L.append_block context "then" the_function
+          and else_bb = L.append_block context "else" the_function in
+          ignore (build_stmt (L.builder_at_end context then_bb) then_stmt);
+          ignore (build_stmt (L.builder_at_end context else_bb) else_stmt);
+
+          let end_bb = L.append_block context "if_end" the_function in
+          let build_br_end = L.build_br end_bb in
+          add_terminal (L.builder_at_end context then_bb) build_br_end;
+          add_terminal (L.builder_at_end context else_bb) build_br_end;
+
+          ignore(L.build_cond_br bool_val then_bb else_bb builder);
+          L.builder_at_end context end_bb
+
+      | _ -> raise (Failure "Statement cannot be translated")
     in
 
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in
@@ -246,16 +262,17 @@ let translate prog =
     let func = L.define_function "main" ftype the_module in
     let entry_block = L.entry_block func in
     let builder = L.builder_at_end context entry_block in
-    let int_format_str = L.build_global_stringptr "Mysterious number: %d\n" "fmt"
-        builder in
+    let mysterious_str = L.build_global_stringptr "Mysterious number: %d\n"
+      "mysterious" builder in
+    let bar_str = L.build_global_stringptr "Bar returns: %d\n" "bar" builder in
     let gcd_res = L.build_call gcd_ref_func [|L.const_int i32_t 10; L.const_int
     i32_t 20|] "gcd_res" builder in
-    let _ = L.build_call printf_func [|int_format_str; gcd_res|]
+    let _ = L.build_call printf_func [|mysterious_str; gcd_res|]
       "res" builder in
-    (* let bar_func = StringMap.find "BAR" function_decls in *)
-    (* let bar_res = L.build_call (fst bar_func) [||] "bar_res" builder in *)
-    (* let _ = L.build_call printf_func [|int_format_str; bar_res|] *)
-    (*   "res" builder in *)
+    let bar_func = StringMap.find "BAR" function_decls in
+    let bar_res = L.build_call (fst bar_func) [||] "bar_res" builder in
+    let _ = L.build_call printf_func [|bar_str; bar_res|]
+      "res" builder in
     L.build_ret gcd_res builder
   in
 

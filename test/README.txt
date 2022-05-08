@@ -3,6 +3,7 @@ IR generation
  - swap.cl: simple swapping
  - add.cl: binary operations
  - simple_func.cl: function calls
+ - cond.cl: if statement
 
 The above do not have main functions. You should handwrite a main function in IR
 gen and call them manually. To call X:
