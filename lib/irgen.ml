@@ -164,9 +164,9 @@ let translate prog =
       | SIf (predicate, then_stmt, else_stmt) ->
           let bool_val = build_expr builder predicate in
 
-          let then_bb = L.append_block context "then" the_function
-          and else_bb = L.append_block context "else" the_function in
+          let then_bb = L.append_block context "then" the_function in
           ignore (build_stmt (L.builder_at_end context then_bb) then_stmt);
+          let else_bb = L.append_block context "else" the_function in
           ignore (build_stmt (L.builder_at_end context else_bb) else_stmt);
 
           let end_bb = L.append_block context "if_end" the_function in
@@ -178,9 +178,6 @@ let translate prog =
           L.builder_at_end context end_bb
       | SWhile (predicate, body) ->
           let while_bb = L.append_block context "while" the_function in
-          let while_body_bb =
-            L.append_block context "while_body" the_function in
-          let while_end_bb = L.append_block context "while_end" the_function in
           let build_br_while = L.build_br while_bb in (* br while partial func *)
 
           (* Jump to while *)
@@ -189,13 +186,17 @@ let translate prog =
           (* Branch in while header *)
           let while_builder = L.builder_at_end context while_bb in
           let bool_val = build_expr while_builder predicate in
-          ignore (L.build_cond_br bool_val while_body_bb while_end_bb
-                  while_builder);
 
           (* Build while body *)
+          let while_body_bb =
+            L.append_block context "while_body" the_function in
           let body_builder = L.builder_at_end context while_body_bb in
           let body_builder = build_stmt body_builder body in
           add_terminal body_builder build_br_while;
+
+          let while_end_bb = L.append_block context "while_end" the_function in
+          ignore (L.build_cond_br bool_val while_body_bb while_end_bb
+                  while_builder);
 
           L.builder_at_end context while_end_bb
       | _ -> raise (Failure "Statement cannot be translated")
