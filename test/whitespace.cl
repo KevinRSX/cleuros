@@ -15,6 +15,7 @@ MAIN()
 	TRUE or TRUE
 	3 = 3
 	3 = 3.5
+	PRINT(3)
 	TEST()
 	if y 
 		3 + 5

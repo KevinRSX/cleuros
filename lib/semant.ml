@@ -79,6 +79,9 @@ let get_fn fn tbl =
   let key = make_key fn "" in
   get key tbl
 
+let builtin = [
+  FuncDef {rtyp = Void; fname = "PRINT"; args = [(Int, "valToPrint")]; body = [] };
+]
 
 (******* f_param_table helpers *******)
 let verify_args fn arg_type_list tbl =
@@ -260,4 +263,4 @@ let check_part part =
   | FuncDef(func) -> SFuncDef (check_func_def func)
   | CustomTypeDef(cust) ->  (add_custom_type cust)
 
-let rec check_program prog = List.map check_part prog
+let rec check_program prog = List.map check_part (List.append builtin prog)
