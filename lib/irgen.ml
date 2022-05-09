@@ -69,7 +69,7 @@ let translate_no_builtin prog =
     let entry_block = L.entry_block the_function in
     let builder = L.builder_at_end context entry_block in
 
-    let local_vars = ref(
+    let local_vars = ref (
       let add_formal m (t, n) p =
         L.set_value_name n p;
         let store_location = L.build_alloca (ltype_of_typ t) n builder in
@@ -78,22 +78,35 @@ let translate_no_builtin prog =
       in
       List.fold_left2 add_formal StringMap.empty fdecl.sargs
         (Array.to_list (L.params the_function))
-      )
-    in
+    ) in
 
-    (* Get storage location of a local assignment
+    (* Get storage location of a local assignment of _built-in_ types
        The first function deals with the case of a new assignment.
        The second is used by SVar, where the variable must have existed *)
     let get_local_asn_loc etype name =
       try StringMap.find name !local_vars
       with Not_found ->
-            let loc = L.build_alloca (ltype_of_typ etype) name builder in
-            (* print_endline ("newly storing: " ^ name); *)
-            local_vars := StringMap.add name loc !local_vars;
-            loc
+          let loc = L.build_alloca (ltype_of_typ etype) name builder in
+          (* print_endline ("newly storing: " ^ name); *)
+          local_vars := StringMap.add name loc !local_vars;
+          loc
     in
 
     let get_local_asn_loc_fast name = StringMap.find name !local_vars in
+
+    (* Get storage location of arrays *)
+    let local_arrs = ref StringMap.empty in
+
+    let get_local_arr_loc etype len name =
+      try StringMap.find name !local_arrs
+      with Not_found ->
+        let loc = L.build_alloca (L.array_type (ltype_of_typ etype) len)
+                  name builder in
+        local_arrs := StringMap.add name loc !local_arrs;
+        loc
+    in
+
+    let get_local_arr_loc_fast name = StringMap.find name !local_arrs in
 
 
     (* Decouples type casting from evaluation
@@ -166,6 +179,15 @@ let translate_no_builtin prog =
               Void -> "" (* Results of void functions must be empty *)
             | _    -> f ^ "_res") in
           L.build_call fdef (Array.of_list llargs) result builder
+      (* Additional features *)
+      | SArrayLit elements ->
+          let array_elems = List.map (build_expr builder) elements in
+          let len = List.length array_elems in
+          L.const_array (L.array_type i32_t len) (Array.of_list array_elems)
+      | SArrayDecl (name, len, atyp, elements) ->
+          let l_elems = build_expr builder (atyp, SArrayLit elements) in
+          let store = get_local_arr_loc atyp len name in
+          ignore (L.build_store l_elems store builder); l_elems;
       | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
