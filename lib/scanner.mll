@@ -89,6 +89,7 @@ rule tokenize = parse
 | (fdigit | digit+) exp '-'? digit+ as lit { FLOATLITERAL(float_of_string lit) }
 (*Custom Types*)
 | "array"     { ARRAY }
+| ".length"   { LENGTH }
 | "newtype"   { NEWTYPE }
 | upper(lower)+(letter)* as name { CUSTOMTYPENAME(name)}
 | "let"       { LET }

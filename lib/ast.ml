@@ -21,6 +21,7 @@ type expr =
   | ArrayMemberAsn of string * expr * expr (* name, loc, val *)
   | Swap of string * string
   | Call of string * expr list 
+  | ArrLength of string (* array to get the length of *)
 
 type stmt = 
     Block of stmt list 
@@ -90,6 +91,7 @@ let rec string_of_expr = function
   | ArrayAccess (id, loc) -> id ^ "[" ^ (string_of_expr loc) ^ "]"
   | ArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_expr loc) ^ "]" ^ " := " ^ (string_of_expr v)
   | StrLit(str) -> enclose str "\""
+  | ArrLength(id) -> id ^ ".length"
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
