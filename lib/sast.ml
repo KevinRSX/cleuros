@@ -6,6 +6,7 @@ and sx =
   | SBLit of bool
   | SILit of int
   | SFLit of float
+  | SStrLit of string 
   | SArrayLit of sexpr list 
   (* list of vals, must all have the same type one of (Int, Bool, Float) *)
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
@@ -64,6 +65,7 @@ let rec string_of_sexpr (t, e) =
     | SArrayDecl(id, size, t, values) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size) ^ " and values " ^ "[" ^ (String.concat ", " (List.map string_of_sexpr values)) ^ "]"
     | SArrayAccess (id, loc) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]"
     | SArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]" ^ " = " ^ (string_of_sexpr v)
+    | SStrLit(str) -> enclose str "\""
   ) ^ ")"
 
 let rec string_of_sstmt = function

@@ -16,6 +16,7 @@
 %token <string> VARIABLE
 %token <string> FUNCTION
 %token <string> CUSTOMTYPENAME
+%token <string> STRLITERAL
 
 %right ASNTO
 
@@ -122,6 +123,7 @@ expr:
 | VARIABLE            { Var($1) }
 | VARIABLE PERIOD VARIABLE { CustVar($1, $3)}
 | INTLITERAL          { ILit($1) }
+| STRLITERAL          { StrLit($1) }
 | FLOATLITERAL        { FLit($1) }
 | BOOLVAR             { BLit($1) }
 | LBRACKET args_opt RBRACKET { ArrayLit($2) }
