@@ -126,7 +126,7 @@ expr:
 | BOOLVAR             { BLit($1) }
 | LBRACKET args_opt RBRACKET { ArrayLit($2) }
 | LET VARIABLE BE CUSTOMTYPENAME { CustDecl($2, $4) }
-| LET VARIABLE BE INTLITERAL typ ARRAY { ArrayDecl($2, $4, $5)}
+| LET VARIABLE BE INTLITERAL typ ARRAY { if $4 = 0 then raise (Failure("Cannot declare array of size 0")) else ArrayDecl($2, $4, $5)}
 | VARIABLE LBRACKET expr RBRACKET { ArrayAccess($1, $3)}
 | VARIABLE LBRACKET expr RBRACKET ASNTO expr { ArrayMemberAsn($1, $3, $6)}
 | VARIABLE ASNTO expr { Asn($1, $3) }
