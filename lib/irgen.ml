@@ -188,6 +188,13 @@ let translate_no_builtin prog =
           let l_elems = build_expr builder (atyp, SArrayLit elements) in
           let store = get_local_arr_loc atyp len name in
           ignore (L.build_store l_elems store builder); l_elems;
+      | SArrayAccess (name, index_sexpr) ->
+          let index = build_expr builder index_sexpr in
+          let int_index = (match (L.int64_of_const index) with
+              Some i -> Int64.to_int i
+            | None -> raise (Failure "Array index is invalid")) in
+          let arr = L.build_load (get_local_arr_loc_fast name) name builder in
+          L.build_extractvalue arr int_index "tmp" builder
       | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
