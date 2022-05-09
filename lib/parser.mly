@@ -4,7 +4,7 @@
 %token LPAREN RPAREN COMMA PRINT EXCHANGE WITH BE
 %token LBRACE RBRACE IF ELSE LESS WHILE GREATER ISEQUALTO NOTEQUAL
 %token LBRACKET RBRACKET ARRAY
-%token NEWTYPE LET BEA PERIOD
+%token NEWTYPE LET BEA PERIOD LENGTH
 %token AND OR 
 %token FOR TO 
 %token INDENT DEDENT COLON NEWLINE
@@ -121,6 +121,7 @@ expr:
 | expr OR expr        { Binop($1, Or, $3) }
 | expr AND expr       { Binop($1, And, $3) }
 | VARIABLE            { Var($1) }
+| VARIABLE LENGTH     { ArrLength($1) }
 | VARIABLE PERIOD VARIABLE { CustVar($1, $3)}
 | INTLITERAL          { ILit($1) }
 | STRLITERAL          { StrLit($1) }

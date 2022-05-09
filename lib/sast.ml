@@ -19,6 +19,7 @@ and sx =
   | SArrayAccess of string * sexpr (* name, loc should be int *)
   | SArrayMemberAsn of string * sexpr * sexpr (* name, loc, val *)
   | SArrayDecl of string * int * typ * sexpr list (* name, size, arr_type, values *)
+  | SArrLength of string (* arr to get length of *)
 
 type sstmt =
     SBlock of sstmt list 
@@ -66,6 +67,7 @@ let rec string_of_sexpr (t, e) =
     | SArrayAccess (id, loc) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]"
     | SArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_sexpr loc) ^ "]" ^ " = " ^ (string_of_sexpr v)
     | SStrLit(str) -> enclose str "\""
+    | SArrLength(id) -> id ^ ".length"
   ) ^ ")"
 
 let rec string_of_sstmt = function
