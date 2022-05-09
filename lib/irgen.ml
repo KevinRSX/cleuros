@@ -192,9 +192,29 @@ let translate_no_builtin prog =
           let index = build_expr builder index_sexpr in
           let int_index = (match (L.int64_of_const index) with
               Some i -> Int64.to_int i
-            | None -> raise (Failure "Array index is invalid")) in
+            | None -> raise (Failure "Access: Array index is invalid")) in
           let arr = L.build_load (get_local_arr_loc_fast name) name builder in
           L.build_extractvalue arr int_index "tmp" builder
+      | SArrLength (name) ->
+          (* Getting length can potentially be optimized, if LLVM doesn't 
+             do it for us. Instead of loading, we can store the length in 
+             local_arr StringMap, and retrieve the value at compile time,
+             instead of loading it ourselves*)
+          let arr = L.build_load (get_local_arr_loc_fast name) name builder in
+          L.const_int i32_t (L.array_length (L.type_of arr))
+      | SArrayMemberAsn (name, index_sexpr, value_sexpr) ->
+          let value = build_expr builder value_sexpr in
+          let index = build_expr builder index_sexpr in
+          let int_index = (match (L.int64_of_const index) with
+              Some i -> Int64.to_int i
+            | None -> raise (Failure "Assign: Array index is invalid")) in
+          let arr_store = get_local_arr_loc_fast name in
+          let arr = L.build_load arr_store name builder in
+          let arr_mod =
+            L.build_insertvalue arr value int_index "modify" builder
+          in
+          ignore (L.build_store arr_mod arr_store builder);
+          value
       | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
