@@ -124,6 +124,7 @@ let check_func_def f =
       | Or  | And                   when t1 = Float -> raise (Failure err)
       | Add | Sub | Mul | Div | Mod | Less| Greater when t1 = Bool  -> raise (Failure err)
       | Or  | And                   when t1 = Bool  -> Bool
+      | Add                         when t1 = String -> String
       | Neq | Eq | Less | Greater                   -> Bool
       | _ -> raise (Failure err)
       in
@@ -152,6 +153,7 @@ let check_func_def f =
   | BLit b -> (Bool, SBLit b)
   | ILit i -> (Int, SILit i)
   | FLit f -> (Float, SFLit f)
+  | StrLit s -> (String, SStrLit s)
   | Asn (id, expr) ->
       let key = make_key cfunc id in 
       let curr = try_get key var_to_cust_type_table in (

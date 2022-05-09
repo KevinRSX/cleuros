@@ -2,14 +2,15 @@ type intop = Add | Sub | Mul | Div | Mod
 type boolop =  Neq | Less | And | Or | Eq | Greater
 type bop = Add | Sub | Mul | Div | Mod | Neq | Less | And | Or | Eq | Greater
 
-type typ = Int | Float | Bool | Void | Temp | Array of typ(* No Char/String support now *)
+type typ = Int | Float | Bool | String | Void | Temp | Array of typ(* No Char/String support now *)
 
 type expr =
     Binop of expr * bop * expr
   | BLit of bool
   | ILit of int
   | FLit of float
-  | ArrayLit of expr list (* list of values *)
+  | StrLit of string
+  | ArrayLit of expr list (* list of values [3,4,5] *)
   | Asn of string * expr
   | CustDecl of string * string 
   | Var of string
@@ -66,7 +67,10 @@ let rec string_of_typ = function
   | Bool -> "bool"
   | Void -> "void"
   | Temp -> "Temp"
+  | String -> "string"
   | Array typ -> "Array of " ^ (string_of_typ typ)
+
+let enclose s around = around ^ s ^ around
 
 let rec string_of_expr = function 
     Binop(e1, b, e2) -> string_of_expr e1 ^ string_of_bop b ^ string_of_expr e2
@@ -85,6 +89,7 @@ let rec string_of_expr = function
   | ArrayDecl(id, size, t) -> "Array: " ^ id ^ " of type " ^ (string_of_typ t) ^ " with size " ^ (string_of_int size)
   | ArrayAccess (id, loc) -> id ^ "[" ^ (string_of_expr loc) ^ "]"
   | ArrayMemberAsn (id, loc, v) -> id ^ "[" ^ (string_of_expr loc) ^ "]" ^ " := " ^ (string_of_expr v)
+  | StrLit(str) -> enclose str "\""
 
 let rec string_of_stmt = function 
   | Expr(e) -> string_of_expr e ^ "[;]\n"
