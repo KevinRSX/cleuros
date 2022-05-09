@@ -97,7 +97,7 @@ rule tokenize = parse
 (*Functions*)
 | upper(upper | '-')+ as func {
     (* print_endline func; *)
-   FUNCTION(func) }
+   FUNCTION(String.lowercase_ascii func) }
 | eof { EOF }
 | _ as unchar { raise (Failure("Scanner error - Unknown character: " ^ Char.escaped unchar))}
 

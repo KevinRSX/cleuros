@@ -89,11 +89,7 @@ let get_fn fn tbl =
   get key tbl
 
 let builtin = [
-  FuncDef {rtyp = Void; fname = "PRINT"; args = [(Int, "valToPrint")]; body = [] };
-  (* CustomTypeDef { name = "intArray"; vars = [(Int, "length"); (Int, "access")]}; 
-  CustomTypeDef { name = "boolArray"; vars = [(Int, "length"); (Bool, "access")]}; 
-  CustomTypeDef { name = "floatArray"; vars = [(Int, "length"); (Float, "access")]}; 
-  CustomTypeDef { name = "emptyArray"; vars = [(Int, "length"); (Void, "access")]}; *)
+  FuncDef {rtyp = Void; fname = "print"; args = [(Int, "valToPrint")]; body = [] };
 ]
 
 (******* f_param_table helpers *******)
