@@ -177,10 +177,10 @@ let check_func_def f =
       | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
     )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
-  | Swap (id1, id2) ->
+  | SwapVar (id1, id2) ->
       let t1 = get_id cfunc id1 f_sym_table in
       let t2 = get_id cfunc id2 f_sym_table in
-      if t1 = t2 then (Void, SSwap (id1, id2))
+      if t1 = t2 then (Void, SSwapVar (id1, id2))
       else raise (Failure ("Incompatible type swapping (" ^
             string_of_typ t1 ^ ", " ^ string_of_typ t2 ^ ") of variables (" ^
             id1 ^ ", " ^ id2 ^ ")"))

@@ -134,7 +134,7 @@ expr:
 | VARIABLE LBRACKET expr RBRACKET ASNTO expr { ArrayMemberAsn($1, $3, $6)}
 | VARIABLE ASNTO expr { Asn($1, $3) }
 | VARIABLE PERIOD VARIABLE ASNTO expr { CustAsn ($1, $3, $5)}
-| EXCHANGE VARIABLE WITH VARIABLE { Swap($2, $4)}
+| EXCHANGE VARIABLE WITH VARIABLE { SwapVar($2, $4)}
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
 | LPAREN expr RPAREN  { $2 }
 ;

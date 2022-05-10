@@ -5,4 +5,5 @@ int MAIN()
 	b := 5
 	d := 1
 	exchange b with d
-	return d
+	PRINT(d)
+	return 0
