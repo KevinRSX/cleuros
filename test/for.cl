@@ -1,5 +1,5 @@
 MAIN()
-	i := 0
 	let a be 3 int array
-	for i := 0 to 3
+	t := 0
+	for i := t to t + 3
 		a[i] := i * i
