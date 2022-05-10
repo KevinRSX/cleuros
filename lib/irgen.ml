@@ -137,7 +137,7 @@ let translate_no_builtin prog =
             let v2 = L.build_load loc2 name2 builder in
             ignore (L.build_store v2 loc1 builder);
             ignore (L.build_store v1 loc2 builder);
-            L.const_int i32_t 0 (* Bug 1 *)
+            L.const_int i32_t 0 (* Bug #1 *)
         | ((_, SArrayAccess (name1, index_sx1)),
           (_, SArrayAccess (name2, index_sx2))) ->
             let index1 = build_expr builder index_sx1 in
@@ -154,7 +154,7 @@ let translate_no_builtin prog =
 
             ignore (L.build_store v2 arr1_gep builder);
             ignore (L.build_store v1 arr2_gep builder);
-            L.const_int i32_t 0 (* Bug 1 *)
+            L.const_int i32_t 0 (* Bug #1 *)
         | _ -> raise (Failure "Swapping not permitted for the given type")
         )
       | SBinop ((t1, e1), bop, (t2, e2)) ->
@@ -299,9 +299,42 @@ let translate_no_builtin prog =
           L.builder_at_end context while_end_bb
       | SFor (i_name, lo, hi, body) ->
           let for_bb = L.append_block context "for" the_function in
-          (* let build_br_for = L.build_br for_bb in (1* br for partial func *1) *)
-          (* wip *)
-          L.builder_at_end context for_bb
+
+          (* Initial configuration: set i to lo *)
+          let vlo = build_expr builder lo in
+          let vhi = build_expr builder hi in
+          let i_store = get_local_asn_loc Int i_name in
+          ignore (L.build_store vlo i_store builder);
+
+          let build_inc_and_br builder =
+            let i_v = L.build_load i_store "i_v" builder in
+            let i_v_pp = L.build_add i_v (L.const_int i32_t 1) "i_v_pp" builder in
+            ignore (L.build_store i_v_pp i_store builder);
+            L.build_br for_bb builder
+          in (* Used at the end of each loop *)
+          (* Used before the first iteration *)
+          let build_br_for = L.build_br for_bb in
+
+          (* Jump to for *)
+          ignore (build_br_for builder);
+
+          (* Branch in for header *)
+          let for_builder = L.builder_at_end context for_bb in
+          let i_v = L.build_load i_store "i_v" for_builder in
+          let bool_val = L.build_icmp L.Icmp.Slt i_v vhi "tmp" for_builder in
+
+          (* Build for body *)
+          let for_body_bb =
+            L.append_block context "for_body" the_function in
+          let body_builder = L.builder_at_end context for_body_bb in
+          let body_builder = build_stmt body_builder body in
+          add_terminal body_builder build_inc_and_br;
+
+          let for_end_bb = L.append_block context "for_end" the_function in
+          ignore (L.build_cond_br bool_val for_body_bb for_end_bb for_builder);
+
+
+          L.builder_at_end context for_end_bb
       (* | _ -> raise (Failure "Statement cannot be translated") *)
     in
 
