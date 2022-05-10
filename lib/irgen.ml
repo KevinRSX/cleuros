@@ -180,14 +180,22 @@ let translate_no_builtin prog =
             | _    -> f ^ "_res") in
           L.build_call fdef (Array.of_list llargs) result builder
       (* Additional features *)
-      | SArrayLit elements ->
-          let array_elems = List.map (build_expr builder) elements in
-          let len = List.length array_elems in
-          L.const_array (L.array_type i32_t len) (Array.of_list array_elems)
+      | SArrayLit elements -> L.const_int i32_t 0
       | SArrayDecl (name, len, atyp, elements) ->
-          let l_elems = build_expr builder (atyp, SArrayLit elements) in
-          let store = get_local_arr_loc atyp len name in
-          ignore (L.build_store l_elems store builder); l_elems;
+          let l_elems = List.map (build_expr builder) elements in
+          let arr_store = get_local_arr_loc atyp len name in
+          let rec store_each_element i = function
+            | [] -> ()
+            | l_e :: l_rest ->
+                let index = L.const_int i32_t i in
+                let arr_gep = L.build_gep arr_store
+                [|L.const_int i32_t 0; index|] "arr_gep" builder in
+                ignore (L.build_store l_e arr_gep builder);
+                store_each_element (i + 1) l_rest
+          in
+          ignore (store_each_element 0 l_elems);
+          L.const_int i32_t 0;
+          (* ignore (L.build_store l_elems store builder); l_elems; *)
       | SArrayAccess (name, index_sexpr) ->
           (* gep here is really strange... The first zero means you need to
              index into the pointer to the array [len * i32/i1/float],
@@ -206,7 +214,7 @@ let translate_no_builtin prog =
           (* Getting length can potentially be optimized, if LLVM doesn't 
              do it for us. Instead of loading, we can store the length in 
              local_arr StringMap, and retrieve the value at compile time,
-             instead of loading it ourselves*)
+             instead of loading it ourselves *)
           let arr = L.build_load (get_local_arr_loc_fast name) name builder in
           L.const_int i32_t (L.array_length (L.type_of arr))
       | SArrayMemberAsn (name, index_sexpr, value_sexpr) ->
@@ -217,12 +225,6 @@ let translate_no_builtin prog =
             [|L.const_int i32_t 0; index|] "arr_gep" builder in
           ignore (L.build_store value arr_gep builder);
           value
-          (* let arr = L.build_load arr_store name builder in *)
-          (* let arr_mod = *)
-          (*   L.build_insertvalue arr value int_index "modify" builder *)
-          (* in *)
-          (* ignore (L.build_store arr_mod arr_store builder); *)
-          (* value *)
       | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 
@@ -282,29 +284,6 @@ let translate_no_builtin prog =
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in
     add_terminal func_builder (L.build_ret_void)
   in
-
-
-(* Dear Handwritten-main-function: You helped me A LOT. RIP!!!
-   Sincerely, Kevin
-  let _ =
-    let ftype = L.function_type i32_t [||] in
-    let func = L.define_function "main" ftype the_module in
-    let entry_block = L.entry_block func in
-    let builder = L.builder_at_end context entry_block in
-    let mysterious_str = L.build_global_stringptr "Mysterious number: %d\n"
-      "mysterious" builder in
-    let bar_str = L.build_global_stringptr "Bar returns: %d\n" "bar" builder in
-    let gcd_res = L.build_call gcd_ref_func [|L.const_int i32_t 10; L.const_int
-    i32_t 20|] "gcd_res" builder in
-    let _ = L.build_call printf_func [|mysterious_str; gcd_res|]
-      "res" builder in
-    let bar_func = StringMap.find "bar" function_decls in
-    let bar_res = L.build_call (fst bar_func) [||] "bar_res" builder in
-    let _ = L.build_call printf_func [|bar_str; bar_res|]
-      "res" builder in
-    L.build_ret gcd_res builder
-  in
-*)
 
   let rec build_prog = function
       SCustomTypeDef ctdecl -> build_custom_type_body ctdecl
