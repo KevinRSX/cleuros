@@ -189,12 +189,19 @@ let translate_no_builtin prog =
           let store = get_local_arr_loc atyp len name in
           ignore (L.build_store l_elems store builder); l_elems;
       | SArrayAccess (name, index_sexpr) ->
+          (* gep here is really strange... The first zero means you need to
+             index into the pointer to the array [len * i32/i1/float],
+             yielding the array itself [len * i32/i1/float]. A more consistent
+             way IMO should be loading the array first because what you have
+             allocated is also [len * i32/i1/float], then you can directly
+             index into this thing and get the actual element, but that doesn't work
+             as lli tells you that you can't gep from a non-pointer (no star). I
+             don't have energy to figure this out right now...*)
           let index = build_expr builder index_sexpr in
-          let int_index = (match (L.int64_of_const index) with
-              Some i -> Int64.to_int i
-            | None -> raise (Failure "Access: Array index is invalid")) in
-          let arr = L.build_load (get_local_arr_loc_fast name) name builder in
-          L.build_extractvalue arr int_index "tmp" builder
+          let arr_store = get_local_arr_loc_fast name in
+          let arr_gep = L.build_gep arr_store
+            [|L.const_int i32_t 0; index|] "arr_gep" builder in
+          L.build_load arr_gep "arr_i" builder
       | SArrLength (name) ->
           (* Getting length can potentially be optimized, if LLVM doesn't 
              do it for us. Instead of loading, we can store the length in 
@@ -205,16 +212,17 @@ let translate_no_builtin prog =
       | SArrayMemberAsn (name, index_sexpr, value_sexpr) ->
           let value = build_expr builder value_sexpr in
           let index = build_expr builder index_sexpr in
-          let int_index = (match (L.int64_of_const index) with
-              Some i -> Int64.to_int i
-            | None -> raise (Failure "Assign: Array index is invalid")) in
           let arr_store = get_local_arr_loc_fast name in
-          let arr = L.build_load arr_store name builder in
-          let arr_mod =
-            L.build_insertvalue arr value int_index "modify" builder
-          in
-          ignore (L.build_store arr_mod arr_store builder);
+          let arr_gep = L.build_gep arr_store
+            [|L.const_int i32_t 0; index|] "arr_gep" builder in
+          ignore (L.build_store value arr_gep builder);
           value
+          (* let arr = L.build_load arr_store name builder in *)
+          (* let arr_mod = *)
+          (*   L.build_insertvalue arr value int_index "modify" builder *)
+          (* in *)
+          (* ignore (L.build_store arr_mod arr_store builder); *)
+          (* value *)
       | _ -> raise (Failure "Expression cannot be translated") (* TODO: SCust* *)
     in
 

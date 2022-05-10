@@ -3,7 +3,11 @@ MAIN()
 	a := arr[1]
 	PRINT(arr[0])
 	PRINT(a)
-	PRINT(arr.length)
+	PRINT(arr[a])
 
-	arr[2] := 6
+	arr[0] := 6
+	arr[arr[0] - 5] := arr[2] + 2
+	arr[a] := 4
+	PRINT(arr[0])
+	PRINT(arr[1])
 	PRINT(arr[2])
