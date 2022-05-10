@@ -312,11 +312,9 @@ let translate_no_builtin prog =
             ignore (L.build_store i_v_pp i_store builder);
             L.build_br for_bb builder
           in (* Used at the end of each loop *)
-          (* Used before the first iteration *)
-          let build_br_for = L.build_br for_bb in
 
           (* Jump to for *)
-          ignore (build_br_for builder);
+          ignore (L.build_br for_bb builder);
 
           (* Branch in for header *)
           let for_builder = L.builder_at_end context for_bb in
@@ -333,9 +331,7 @@ let translate_no_builtin prog =
           let for_end_bb = L.append_block context "for_end" the_function in
           ignore (L.build_cond_br bool_val for_body_bb for_end_bb for_builder);
 
-
           L.builder_at_end context for_end_bb
-      (* | _ -> raise (Failure "Statement cannot be translated") *)
     in
 
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in
