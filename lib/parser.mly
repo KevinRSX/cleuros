@@ -20,11 +20,13 @@
 
 %right ASNTO
 
+%left EXCHANGE WITH
 %left OR 
 %left AND 
 %left LESS GREATER ISEQUALTO NOTEQUAL
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
+%left LBRACKET RBRACKET
 
 %start program_EOF
 %type <Ast.program> program_EOF
@@ -134,7 +136,7 @@ expr:
 | VARIABLE LBRACKET expr RBRACKET ASNTO expr { ArrayMemberAsn($1, $3, $6)}
 | VARIABLE ASNTO expr { Asn($1, $3) }
 | VARIABLE PERIOD VARIABLE ASNTO expr { CustAsn ($1, $3, $5)}
-| EXCHANGE VARIABLE WITH VARIABLE { SwapVar($2, $4)}
+| EXCHANGE expr WITH expr { Swap ($2, $4) }
 | FUNCTION LPAREN args_opt RPAREN { Call($1, $3)}
 | LPAREN expr RPAREN  { $2 }
 ;

@@ -19,7 +19,7 @@ type expr =
   | ArrayDecl of string * int * typ (* name, size, type *)
   | ArrayAccess of string * expr (* name, loc should be int *)
   | ArrayMemberAsn of string * expr * expr (* name, loc, val *)
-  | SwapVar of string * string
+  | Swap of expr * expr (* ArrayAccess, ArrayAccess *)
   | Call of string * expr list 
   | ArrLength of string (* array to get the length of *)
 
@@ -82,7 +82,8 @@ let rec string_of_expr = function
   | ArrayLit(exprs) -> "[" ^ (String.concat ", " (List.map string_of_expr exprs)) ^ "]"
   | Asn(id, e) -> id ^ " := " ^ string_of_expr e 
   | Var(id) -> id 
-  | SwapVar(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
+  | Swap(e1, e2) -> "swap(" ^ (string_of_expr e1) ^ ", " ^
+      (string_of_expr e2) ^ ")"
   | Call(func, args) -> func ^ "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
   | CustDecl(id, cust_type) -> id ^ " is " ^ cust_type
   | CustAsn(id, var, e) -> id ^ "." ^ var ^ " := " ^ string_of_expr e

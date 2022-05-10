@@ -177,13 +177,14 @@ let check_func_def f =
       | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
     )
   | Var id -> (get_id cfunc id f_sym_table, SVar id)
-  | SwapVar (id1, id2) ->
-      let t1 = get_id cfunc id1 f_sym_table in
-      let t2 = get_id cfunc id2 f_sym_table in
-      if t1 = t2 then (Void, SSwapVar (id1, id2))
-      else raise (Failure ("Incompatible type swapping (" ^
-            string_of_typ t1 ^ ", " ^ string_of_typ t2 ^ ") of variables (" ^
-            id1 ^ ", " ^ id2 ^ ")"))
+  | Swap (e1, e2) -> (match (e1, e2) with
+      (ArrayAccess _, ArrayAccess _) | (Var _, Var _) ->
+        let (t1, arr_i1) = check_expr cfunc e1 in
+        let (t2, arr_i2) = check_expr cfunc e2 in
+        if t1 = t2 then (Void, SSwap ((t1, arr_i1), (t2, arr_i2)))
+        else raise (Failure ("Incompatible type swapping (" ^
+              string_of_typ t1 ^ ", " ^ string_of_typ t2 ^ ")"))
+      | _ -> raise (Failure "Swapping is only allowed for arrays and IDs"))
   | Call (fname, arg_list) ->
     let sarg_list = List.map (check_expr cfunc) arg_list in
     let arg_type_list = List.map (function (t, _) -> t) sarg_list in

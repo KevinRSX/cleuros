@@ -129,14 +129,34 @@ let translate_no_builtin prog =
           let store = get_local_asn_loc t name in
           ignore (L.build_store e' store builder); e'
       | SVar name -> L.build_load (get_local_asn_loc_fast name) name builder;
-      | SSwapVar (name1, name2) ->
-          let loc1 = get_local_asn_loc_fast name1 in
-          let loc2 = get_local_asn_loc_fast name2 in
-          let v1 = L.build_load loc1 name1 builder in
-          let v2 = L.build_load loc2 name2 builder in
-          ignore (L.build_store v2 loc1 builder);
-          ignore (L.build_store v1 loc2 builder);
-          L.const_int i32_t 0 (* Bug 1 *)
+      | SSwap (e1, e2) -> (match (e1, e2) with
+          ((_, SVar name1), (_, SVar name2)) ->
+            let loc1 = get_local_asn_loc_fast name1 in
+            let loc2 = get_local_asn_loc_fast name2 in
+            let v1 = L.build_load loc1 name1 builder in
+            let v2 = L.build_load loc2 name2 builder in
+            ignore (L.build_store v2 loc1 builder);
+            ignore (L.build_store v1 loc2 builder);
+            L.const_int i32_t 0 (* Bug 1 *)
+        | ((_, SArrayAccess (name1, index_sx1)),
+          (_, SArrayAccess (name2, index_sx2))) ->
+            let index1 = build_expr builder index_sx1 in
+            let arrp1 = get_local_arr_loc_fast name1 in
+            let arr1_gep = L.build_gep arrp1
+              [|L.const_int i32_t 0; index1|] "arr1_gep" builder in
+            let v1 = L.build_load arr1_gep "arr_i_fst" builder in
+
+            let index2 = build_expr builder index_sx2 in
+            let arrp2 = get_local_arr_loc_fast name2 in
+            let arr2_gep = L.build_gep arrp2
+              [|L.const_int i32_t 0; index2|] "arr2_gep" builder in
+            let v2 = L.build_load arr2_gep "arr_i_snd" builder in
+
+            ignore (L.build_store v2 arr1_gep builder);
+            ignore (L.build_store v1 arr2_gep builder);
+            L.const_int i32_t 0 (* Bug 1 *)
+        | _ -> raise (Failure "Swapping not permitted for the given type")
+        )
       | SBinop ((t1, e1), bop, (t2, e2)) ->
           let e1' = build_expr builder (t1, e1)
           and e2' = build_expr builder (t2, e2) in

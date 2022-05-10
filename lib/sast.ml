@@ -12,7 +12,7 @@ and sx =
   | SAsn of string * sexpr (* must be Void reported by semant.ml *)
   | SCustDecl of string * string (* (id, custom_type) *)
   | SVar of string
-  | SSwapVar of string * string
+  | SSwap of sexpr * sexpr (* arr[x], arr[y] *)
   | SCall of string * sexpr list 
   | SCustVar of string * string  (* id, var, e.g. myCustTypeVar.myIntVar *)
   | SCustAsn of string * string * sexpr  (* id, var, expr *)
@@ -59,7 +59,8 @@ let rec string_of_sexpr (t, e) =
     | SAsn(id, e) -> "Assignment # " ^ id ^ " := " ^ string_of_sexpr e
     | SCustDecl(id, cust) -> "CustomAssignment # " ^ id ^ " := " ^ cust
     | SVar(id) -> id
-    | SSwapVar(id1, id2) -> "swap(" ^ id1 ^ ", " ^ id2 ^ ")"
+    | SSwap(e1, e2) -> "swap(" ^ (string_of_sexpr e1) ^ ", " ^
+        (string_of_sexpr e2) ^ ")"
     | SCall(func, args) -> "Call # " ^ func ^ "(" ^ String.concat ", " (List.map string_of_sexpr args) ^ ")"
     | SCustVar(id, var) -> id ^ "." ^ var
     | SCustAsn(id, var, e) -> "Assignment # " ^ id ^ "." ^ var ^ " := " ^ (string_of_sexpr e)
