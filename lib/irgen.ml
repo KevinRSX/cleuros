@@ -1,4 +1,4 @@
-(* Some codes are borrowed from MicroC's IR generator *)
+
 
 module L = Llvm
 module A = Ast
@@ -297,7 +297,12 @@ let translate_no_builtin prog =
                   while_builder);
 
           L.builder_at_end context while_end_bb
-      | _ -> raise (Failure "Statement cannot be translated")
+      | SFor (i_name, lo, hi, body) ->
+          let for_bb = L.append_block context "for" the_function in
+          (* let build_br_for = L.build_br for_bb in (1* br for partial func *1) *)
+          (* wip *)
+          L.builder_at_end context for_bb
+      (* | _ -> raise (Failure "Statement cannot be translated") *)
     in
 
     let func_builder = build_stmt builder (SBlock fdecl.sbody) in

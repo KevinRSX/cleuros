@@ -103,7 +103,8 @@ stmt:
 | IF expr NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block []) }
 | IF expr NEWLINE INDENT stmt_list DEDENT ELSE NEWLINE INDENT stmt_list DEDENT { If($2, Block $5, Block $10) }
 | WHILE expr NEWLINE INDENT stmt_list DEDENT { While($2, Block $5) }
-| FOR VARIABLE ASNTO INTLITERAL TO INTLITERAL NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
+| FOR VARIABLE ASNTO expr TO expr
+  NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
 | RETURN expr NEWLINE { Return($2)}
 ;
 

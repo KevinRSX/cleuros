@@ -317,7 +317,15 @@ let check_func_def f =
             ^ string_of_typ (expr_typ) ^ " is provided"))
           else SWhile (check_expr cfunc expr, check_stmt cfunc stmt)
       | For (id, lo, hi, stmt) ->  
-          (set_id cfunc id Int f_sym_table; SFor (id, lo, hi, check_stmt cfunc stmt))
+          let (tlo, elo) = check_expr cfunc lo in
+          let slo = (tlo, elo) in
+          let (thi, ehi) = check_expr cfunc hi in
+          let shi = (thi, ehi) in
+          if (tlo = Int && thi = Int) then (
+            ignore (set_id cfunc id Int f_sym_table);
+            SFor (id, slo, shi, check_stmt cfunc stmt)
+          )
+          else raise (Failure "For iteration range type must be Int")
       | Return expr -> SReturn (check_expr cfunc expr)
     in
     List.map (check_stmt cfunc) all_stmt

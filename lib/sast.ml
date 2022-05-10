@@ -26,7 +26,7 @@ type sstmt =
   | SExpr of sexpr 
   | SIf of sexpr * sstmt * sstmt  
   | SWhile of sexpr * sstmt
-  | SFor of string * int * int * sstmt
+  | SFor of string * sexpr * sexpr * sstmt
   | SReturn of sexpr
 
 type sfunc_def = { 
@@ -78,7 +78,9 @@ let rec string_of_sstmt = function
       "if " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt1 ^ "else\n" ^
       string_of_sstmt sstmt2
   | SWhile(cond, sstmt) -> "while " ^ string_of_sexpr cond ^ "\n" ^ string_of_sstmt sstmt
-  | SFor(id, lo, hi, sstmt) -> "for " ^ id ^ " = " ^ (string_of_int lo) ^ " to " ^ (string_of_int hi) ^ (string_of_sstmt sstmt)
+  | SFor(id, lo, hi, sstmt) ->
+      "for " ^ id ^ " = " ^ (string_of_sexpr lo) ^ " to "
+      ^ (string_of_sexpr hi) ^ (string_of_sstmt sstmt)
   | SReturn(e) -> "return " ^ string_of_sexpr e ^ "[;]\n"
 
 let string_of_sfdecl sfdecl =
