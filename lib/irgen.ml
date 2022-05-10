@@ -136,7 +136,7 @@ let translate_no_builtin prog =
           let v2 = L.build_load loc2 name2 builder in
           ignore (L.build_store v2 loc1 builder);
           ignore (L.build_store v1 loc2 builder);
-          L.const_int i32_t 0 (* Null pointer will cause error, so return 0 *)
+          L.const_int i32_t 0 (* Bug 1 *)
       | SBinop ((t1, e1), bop, (t2, e2)) ->
           let e1' = build_expr builder (t1, e1)
           and e2' = build_expr builder (t2, e2) in
@@ -176,11 +176,11 @@ let translate_no_builtin prog =
           let (fdef, fdecl) = StringMap.find f function_decls in
           let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
           let result = (match fdecl.srtyp with
-              Void -> "" (* Results of void functions must be empty *)
+              Void -> "" (* Bug #1 Potential *)
             | _    -> f ^ "_res") in
           L.build_call fdef (Array.of_list llargs) result builder
       (* Additional features *)
-      | SArrayLit elements -> L.const_int i32_t 0
+      | SArrayLit elements -> L.const_int i32_t 0 (* Bug #2 *)
       | SArrayDecl (name, len, atyp, elements) ->
           let l_elems = List.map (build_expr builder) elements in
           let arr_store = get_local_arr_loc atyp len name in
@@ -194,8 +194,7 @@ let translate_no_builtin prog =
                 store_each_element (i + 1) l_rest
           in
           ignore (store_each_element 0 l_elems);
-          L.const_int i32_t 0;
-          (* ignore (L.build_store l_elems store builder); l_elems; *)
+          L.const_int i32_t 0; (* Bug #1 *)
       | SArrayAccess (name, index_sexpr) ->
           (* gep here is really strange... The first zero means you need to
              index into the pointer to the array [len * i32/i1/float],

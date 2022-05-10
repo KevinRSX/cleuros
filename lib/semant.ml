@@ -224,9 +224,19 @@ let check_func_def f =
               ^ (string_of_typ typ) ^ " but received " ^ (string_of_typ t)))
         )
     )
-  | ArrayDecl(id, size, t) -> 
-    let key = make_key cfunc id in 
-    set_arr key (size, t); (Void, SArrayDecl(id, size, t, []))
+  | ArrayDecl(id, size, t) ->
+    let key = make_key cfunc id in
+    set_arr key (size, t);
+    let rec sizex1list = function
+        0 -> []
+      | n -> (match t with
+          Int -> (Int, SILit 0) :: (sizex1list (n - 1))
+        | Float -> (Float, SFLit 0.) :: (sizex1list (n - 1))
+        | Bool -> (Bool, SBLit false) :: (sizex1list (n - 1))
+        | _ -> raise (Failure "List type not supported")
+        )
+    in
+    (Void, SArrayDecl(id, size, t, sizex1list size))
   | ArrayAccess(id, loc_expr) -> 
     let key = make_key cfunc id in 
     let loc_typ, loc_sexpr = check_expr cfunc loc_expr in 
