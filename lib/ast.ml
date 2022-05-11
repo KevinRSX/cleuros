@@ -29,6 +29,7 @@ type stmt =
   | If of expr * stmt * stmt  
   | While of expr * stmt
   | For of string * expr * expr * stmt  (*id, lo, hi, stmt*)
+  | Fordown of string * expr * expr * stmt (* id, hi, lo, stmt *)
   | Return of expr
 
 type param_type = typ * string
@@ -103,6 +104,9 @@ let rec string_of_stmt = function
   | For(id, lo, hi, stmt) ->
       "for " ^ id ^ "= " ^ (string_of_expr lo) ^ " to " ^
       (string_of_expr hi) ^ (string_of_stmt stmt)
+  | Fordown (id, hi, lo, stmt) ->
+      "for " ^ id ^ "= " ^ (string_of_expr hi) ^ " downto " ^
+      (string_of_expr lo) ^ (string_of_stmt stmt)
 
 let string_of_param_type = function
   | (typ, param) -> "Param # (" ^ string_of_typ typ ^ ": " ^ param ^ ")"

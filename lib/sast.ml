@@ -27,6 +27,7 @@ type sstmt =
   | SIf of sexpr * sstmt * sstmt  
   | SWhile of sexpr * sstmt
   | SFor of string * sexpr * sexpr * sstmt
+  | SFordown of string * sexpr * sexpr * sstmt
   | SReturn of sexpr
 
 type sfunc_def = { 
@@ -81,6 +82,9 @@ let rec string_of_sstmt = function
   | SFor(id, lo, hi, sstmt) ->
       "for " ^ id ^ " = " ^ (string_of_sexpr lo) ^ " to "
       ^ (string_of_sexpr hi) ^ (string_of_sstmt sstmt)
+  | SFordown (id, hi, lo, sstmt) ->
+      "for " ^ id ^ " = " ^ (string_of_sexpr hi) ^ " downto "
+      ^ (string_of_sexpr lo) ^ (string_of_sstmt sstmt)
   | SReturn(e) -> "return " ^ string_of_sexpr e ^ "[;]\n"
 
 let string_of_sfdecl sfdecl =

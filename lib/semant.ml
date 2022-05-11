@@ -326,6 +326,16 @@ let check_func_def f =
             SFor (id, slo, shi, check_stmt cfunc stmt)
           )
           else raise (Failure "For iteration range type must be Int")
+      | Fordown (id, hi, lo, stmt) ->  
+          let (tlo, elo) = check_expr cfunc lo in
+          let slo = (tlo, elo) in
+          let (thi, ehi) = check_expr cfunc hi in
+          let shi = (thi, ehi) in
+          if (tlo = Int && thi = Int) then (
+            ignore (set_id cfunc id Int f_sym_table);
+            SFordown (id, shi, slo, check_stmt cfunc stmt)
+          )
+          else raise (Failure "For iteration range type must be Int")
       | Return expr -> SReturn (check_expr cfunc expr)
     in
     List.map (check_stmt cfunc) all_stmt

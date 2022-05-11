@@ -6,7 +6,7 @@
 %token LBRACKET RBRACKET ARRAY
 %token NEWTYPE LET BEA PERIOD LENGTH
 %token AND OR 
-%token FOR TO 
+%token FOR TO DOWNTO
 %token INDENT DEDENT COLON NEWLINE
 %token RETURN
 %token INT BOOL FLOAT
@@ -105,6 +105,8 @@ stmt:
 | WHILE expr NEWLINE INDENT stmt_list DEDENT { While($2, Block $5) }
 | FOR VARIABLE ASNTO expr TO expr
   NEWLINE INDENT stmt_list DEDENT { For($2, $4, $6, Block $9)}
+| FOR VARIABLE ASNTO expr DOWNTO expr
+  NEWLINE INDENT stmt_list DEDENT { Fordown($2, $4, $6, Block $9) }
 | RETURN expr NEWLINE { Return($2)}
 ;
 

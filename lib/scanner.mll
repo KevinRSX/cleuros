@@ -76,6 +76,7 @@ rule tokenize = parse
 | "while"     { WHILE }
 | "for"       { FOR }
 | "to"        { TO }
+| "downto"    { DOWNTO }
 | "return"    { RETURN }
 (* types. TODO: char, string, array, custom type *)
 | "int"       { INT }

@@ -1,5 +1,3 @@
-
-
 module L = Llvm
 module A = Ast
 open Sast
@@ -319,7 +317,7 @@ let translate_no_builtin prog =
           (* Branch in for header *)
           let for_builder = L.builder_at_end context for_bb in
           let i_v = L.build_load i_store "i_v" for_builder in
-          let bool_val = L.build_icmp L.Icmp.Slt i_v vhi "tmp" for_builder in
+          let bool_val = L.build_icmp L.Icmp.Sle i_v vhi "tmp" for_builder in
 
           (* Build for body *)
           let for_body_bb =
@@ -327,6 +325,41 @@ let translate_no_builtin prog =
           let body_builder = L.builder_at_end context for_body_bb in
           let body_builder = build_stmt body_builder body in
           add_terminal body_builder build_inc_and_br;
+
+          let for_end_bb = L.append_block context "for_end" the_function in
+          ignore (L.build_cond_br bool_val for_body_bb for_end_bb for_builder);
+
+          L.builder_at_end context for_end_bb
+      | SFordown (i_name, hi, lo, body) ->
+          let for_bb = L.append_block context "for" the_function in
+
+          (* Initial configuration: set i to lo *)
+          let vlo = build_expr builder lo in
+          let vhi = build_expr builder hi in
+          let i_store = get_local_asn_loc Int i_name in
+          ignore (L.build_store vhi i_store builder);
+
+          let build_dec_and_br builder =
+            let i_v = L.build_load i_store "i_v" builder in
+            let i_v_mm = L.build_sub i_v (L.const_int i32_t 1) "i_v_mm" builder in
+            ignore (L.build_store i_v_mm i_store builder);
+            L.build_br for_bb builder
+          in (* Used at the end of each loop *)
+
+          (* Jump to for *)
+          ignore (L.build_br for_bb builder);
+
+          (* Branch in for header *)
+          let for_builder = L.builder_at_end context for_bb in
+          let i_v = L.build_load i_store "i_v" for_builder in
+          let bool_val = L.build_icmp L.Icmp.Sge i_v vlo "tmp" for_builder in
+
+          (* Build for body *)
+          let for_body_bb =
+            L.append_block context "for_body" the_function in
+          let body_builder = L.builder_at_end context for_body_bb in
+          let body_builder = build_stmt body_builder body in
+          add_terminal body_builder build_dec_and_br;
 
           let for_end_bb = L.append_block context "for_end" the_function in
           ignore (L.build_cond_br bool_val for_body_bb for_end_bb for_builder);
