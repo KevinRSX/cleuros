@@ -12,4 +12,4 @@ MAIN()
 
 	hi := TRUE
 	lo := FALSE
-	hi = lo
+	hi := lo
