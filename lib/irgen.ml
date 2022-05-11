@@ -81,7 +81,7 @@ let translate_no_builtin prog =
     (* Get storage location of a local assignment of _built-in_ types
        The first function deals with the case of a new assignment.
        The second is used by SVar, where the variable must have existed *)
-    let get_local_asn_loc etype name =
+    let get_local_asn_loc etype name builder =
       try StringMap.find name !local_vars
       with Not_found ->
           let loc = L.build_alloca (ltype_of_typ etype) name builder in
@@ -95,7 +95,7 @@ let translate_no_builtin prog =
     (* Get storage location of arrays *)
     let local_arrs = ref StringMap.empty in
 
-    let get_local_arr_loc etype len name =
+    let get_local_arr_loc etype len name builder =
       try StringMap.find name !local_arrs
       with Not_found ->
         let loc = L.build_alloca (L.array_type (ltype_of_typ etype) len)
@@ -124,7 +124,7 @@ let translate_no_builtin prog =
       | SFLit f -> L.const_float f_t f
       | SAsn (name, (t, expr)) ->
           let e' = build_expr builder (t, expr) in
-          let store = get_local_asn_loc t name in
+          let store = get_local_asn_loc t name builder in
           ignore (L.build_store e' store builder); e'
       | SVar name -> L.build_load (get_local_asn_loc_fast name) name builder;
       | SSwap (e1, e2) -> (match (e1, e2) with
@@ -201,7 +201,7 @@ let translate_no_builtin prog =
       | SArrayLit elements -> L.const_int i32_t 0 (* Bug #2 *)
       | SArrayDecl (name, len, atyp, elements) ->
           let l_elems = List.map (build_expr builder) elements in
-          let arr_store = get_local_arr_loc atyp len name in
+          let arr_store = get_local_arr_loc atyp len name builder in
           let rec store_each_element i = function
             | [] -> ()
             | l_e :: l_rest ->
@@ -301,7 +301,7 @@ let translate_no_builtin prog =
           (* Initial configuration: set i to lo *)
           let vlo = build_expr builder lo in
           let vhi = build_expr builder hi in
-          let i_store = get_local_asn_loc Int i_name in
+          let i_store = get_local_asn_loc Int i_name builder in
           ignore (L.build_store vlo i_store builder);
 
           let build_inc_and_br builder =
@@ -336,7 +336,7 @@ let translate_no_builtin prog =
           (* Initial configuration: set i to lo *)
           let vlo = build_expr builder lo in
           let vhi = build_expr builder hi in
-          let i_store = get_local_asn_loc Int i_name in
+          let i_store = get_local_asn_loc Int i_name builder in
           ignore (L.build_store vhi i_store builder);
 
           let build_dec_and_br builder =
