@@ -31,9 +31,15 @@ PRINT("xyz")
 This does not work:
 
 ```
-s := "xyz" # LLVM will allocate a pointer to i32_t for s here, which is awful
+s := "xyz" # LLVM will allocate a pointer to i32_t, instead of a pointer to a pointer to i8_t, for s, which is awful
 PRINT(s)
 ```
 
 Workaround: let the compiler complain when this happens
+
+
+
+## 4. String Literal
+
+The String literal in scanner is flawed as its regex uses an inclusive pattern (letter OR punctuation OR number OR ...) instead of an exclusive one (everything but \ and ""). Some patterns cannot be recognized. We currently just avoid printing those patterns.
 
