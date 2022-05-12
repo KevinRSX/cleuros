@@ -13,7 +13,7 @@ let fdigit = digit* '.' digit+ | digit+ '.' digit*
 let exp = 'e' | 'E'
 let lower = ['a'-'z']
 let upper = ['A'-'Z']
-let punctuation =  '-' | '_' | '.' | ',' | '!' | '&' | '*' | '+'
+let punctuation =  '-' | '_' | '.' | ',' | '!' | '&' | '*' | '+' | ':'
 let letter = lower | upper
 
 rule tokenize = parse
@@ -101,6 +101,7 @@ rule tokenize = parse
 | upper(upper | '-')+ as func {
     (* print_endline func; *)
    FUNCTION(String.lowercase_ascii func) }
+(* Bug #4 *)
 | '"' ((letter | punctuation | digit | ' ' | '\n')* as str_lit) '"'  {STRLITERAL(str_lit)}
 | eof { EOF }
 | _ as unchar { raise (Failure("Scanner error - Unknown character: " ^ Char.escaped unchar))}
