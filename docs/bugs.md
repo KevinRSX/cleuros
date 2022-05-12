@@ -15,3 +15,25 @@ L.const_int i32_t 0 (* Bug #1 *)
 ## 2. Array Literal
 
 The type of array literal are supposed to be `Array arr_type` per our semantic checker. However, we do not find an appropriate place way to infer array literal's type. Workaround is the same as Bug #1: use a constant int whose values is 0 in place of generating LLVM IR for `SArrayLit`.
+
+
+
+## 3. Strings
+
+String support is EXTREMELY limited right now. We only support string literals, no assignments, no binary operations such as concatenation, no others!
+
+That is, only this works:
+
+```
+PRINT("xyz")
+```
+
+This does not work:
+
+```
+s := "xyz" # LLVM will allocate a pointer to i32_t for s here, which is awful
+PRINT(s)
+```
+
+Workaround: let the compiler complain when this happens
+

@@ -101,7 +101,7 @@ rule tokenize = parse
 | upper(upper | '-')+ as func {
     (* print_endline func; *)
    FUNCTION(String.lowercase_ascii func) }
-| '"' ((letter | punctuation | digit)* as str_lit) '"'  {STRLITERAL(str_lit)}
+| '"' ((letter | punctuation | digit | ' ' | '\n')* as str_lit) '"'  {STRLITERAL(str_lit)}
 | eof { EOF }
 | _ as unchar { raise (Failure("Scanner error - Unknown character: " ^ Char.escaped unchar))}
 

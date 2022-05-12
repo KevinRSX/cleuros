@@ -31,7 +31,10 @@ let translate_no_builtin prog =
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
+
   (* Built-in functions *)
+
+  (* PRINT(5) --> print_int *)
   let print_int_func =
     let ftype = L.function_type void_t [|i32_t|] in
     let func = L.define_function "print_int_func" ftype the_module in
@@ -39,8 +42,22 @@ let translate_no_builtin prog =
     let param = Array.get (L.params func) 0 in
     let entry_block = L.entry_block func in
     let builder = L.builder_at_end context entry_block in
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let int_format_str = L.build_global_stringptr "%d\n" "int_fmt" builder in
     let _ = L.build_call printf_func [|int_format_str; param|] "res" builder in
+    let _ = L.build_ret_void builder in
+    func
+  in
+
+  (* PRINT("hello") --> print_string *)
+  let print_string_func =
+    let ftype = L.function_type void_t [| L.pointer_type i8_t |] in
+    let func = L.define_function "print_str_func" ftype the_module in
+
+    let param = Array.get (L.params func) 0 in
+    let entry_block = L.entry_block func in
+    let builder = L.builder_at_end context entry_block in
+    let str_format_str = L.build_global_stringptr "%s\n" "str_fmt" builder in
+    let _ = L.build_call printf_func [|str_format_str; param|] "res" builder in
     let _ = L.build_ret_void builder in
     func
   in
@@ -150,10 +167,13 @@ let translate_no_builtin prog =
         SILit i -> L.const_int i32_t i
       | SBLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit f -> L.const_float f_t f
+      (* String literal copied from Pixel++ *)
+      | SStrLit s -> L.build_global_stringptr s ".str" builder
       | SAsn (name, (t, expr)) ->
           let e' = build_expr builder (t, expr) in
           let store = get_local_asn_loc t name builder in
           ignore (L.build_store e' store builder); e'
+      (* Bug #3 *)
       | SVar name -> L.build_load (get_local_asn_loc_fast name) name builder;
       | SSwap (e1, e2) -> (match (e1, e2) with
           ((_, SVar name1), (_, SVar name2)) ->
@@ -214,10 +234,14 @@ let translate_no_builtin prog =
             | Float -> build_float bop (cast_float e1') (cast_float e2')
             | _ -> build_bool bop e1' e2'
           )
-      | SCall ("print", args) ->
+      | SCall ("print_int", args) ->
           let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
           let result = "" in
           L.build_call print_int_func (Array.of_list llargs) result builder
+      | SCall ("print_string", args) ->
+          let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
+          let result = "" in
+          L.build_call print_string_func (Array.of_list llargs) result builder
       | SCall (f, args) ->
           let (fdef, fdecl) = StringMap.find f function_decls in
           let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
@@ -412,7 +436,7 @@ let translate prog =
   let is_builtin = function
       SCustomTypeDef ctdecl -> true
     | SFuncDef fdecl -> (match fdecl.sfname with
-        "print" -> false
-      | _       -> true)
+        "print_int" | "print_string"  -> false
+      | _                             -> true)
   in
   translate_no_builtin (List.filter is_builtin prog)
