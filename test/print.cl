@@ -4,3 +4,6 @@ FOO()
 int BAR()
 	FOO()
 	return 0
+
+MAIN()
+	k := BAR()

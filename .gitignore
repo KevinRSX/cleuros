@@ -8,6 +8,9 @@
 *.cmxs
 *.cmxa
 *.out
+*.result
+*.pyresult
+result.txt
 
 # ocamlbuild working directory
 _build/

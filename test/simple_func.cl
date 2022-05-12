@@ -4,3 +4,7 @@ int FOO(a be int, b be bool)
 
 int BAR()
 	return FOO(1, TRUE)
+
+MAIN()
+	k := BAR()
+	PRINT(k)

@@ -7,3 +7,7 @@ int FOO(b be bool)
 
 int BAR()
 	return FOO(FALSE)
+
+MAIN()
+	k := BAR()
+	PRINT(k)

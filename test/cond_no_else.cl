@@ -5,3 +5,6 @@ int FOO(b be bool)
 
 int BAR()
 	return FOO(TRUE)
+MAIN()
+	k := BAR()
+	PRINT(k)
