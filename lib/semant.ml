@@ -89,7 +89,8 @@ let get_fn fn tbl =
   get key tbl
 
 let builtin = [
-  FuncDef {rtyp = Void; fname = "print"; args = [(Int, "valToPrint")]; body = [] };
+  FuncDef {rtyp = Void; fname = "print_int"; args = [(Int, "val_to_print")]; body = [] };
+  FuncDef {rtyp = Void; fname = "print_string"; args = [(String, "str_to_print")]; body = []};
 ]
 
 (******* f_param_table helpers *******)
@@ -165,6 +166,7 @@ let check_func_def f =
                 set_arr key (size, arr_typ); (Void, SArrayDecl(id, size, arr_typ, sexprs))
               | _ -> raise (Failure("Unexpected stype with Array"))
               )
+          | String -> raise (Failure ("String assignment not supported"))
           | _ -> set_id cfunc id typ f_sym_table; (Void, SAsn (id, (typ, v)))
         )
         | Some t -> raise (Failure ("var " ^ key ^ " already defined"))
@@ -185,11 +187,26 @@ let check_func_def f =
         else raise (Failure ("Incompatible type swapping (" ^
               string_of_typ t1 ^ ", " ^ string_of_typ t2 ^ ")"))
       | _ -> raise (Failure "Swapping is only allowed for arrays and IDs"))
+  | Call ("print", arg_list) ->
+    let sarg_list = List.map (check_expr cfunc) arg_list in
+    let arg_type_list = List.map (function (t, _) -> t) sarg_list in
+    let fname = ref "print" in
+    (match arg_type_list with
+        [Int] ->
+          fname := "print_int";
+          verify_args !fname arg_type_list f_param_table;
+          (get_fn !fname f_sym_table, SCall(!fname, sarg_list))
+      | [String] ->
+          fname := "print_string";
+          verify_args !fname arg_type_list f_param_table;
+          (get_fn !fname f_sym_table, SCall(!fname, sarg_list))
+      | _ -> raise (Failure "PRINT is only allowed for int and string")
+    )
   | Call (fname, arg_list) ->
     let sarg_list = List.map (check_expr cfunc) arg_list in
     let arg_type_list = List.map (function (t, _) -> t) sarg_list in
-      verify_args fname arg_type_list f_param_table;
-      (get_fn fname f_sym_table, SCall(fname, sarg_list))
+    verify_args fname arg_type_list f_param_table;
+    (get_fn fname f_sym_table, SCall(fname, sarg_list))
   | CustVar(id, var) -> 
     let key = make_key cfunc id in 
     let opt_cust_type = try_get key var_to_cust_type_table in 
