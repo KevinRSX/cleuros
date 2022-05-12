@@ -89,7 +89,7 @@ let get_fn fn tbl =
   get key tbl
 
 let builtin = [
-  FuncDef {rtyp = Void; fname = "print"; args = [(Int, "val_to_print")]; body = [] };
+  FuncDef {rtyp = Void; fname = "print_int"; args = [(Int, "val_to_print")]; body = [] };
   FuncDef {rtyp = Void; fname = "print_string"; args = [(String, "str_to_print")]; body = []};
 ]
 
@@ -166,6 +166,7 @@ let check_func_def f =
                 set_arr key (size, arr_typ); (Void, SArrayDecl(id, size, arr_typ, sexprs))
               | _ -> raise (Failure("Unexpected stype with Array"))
               )
+          | String -> raise (Failure ("String assignment not supported"))
           | _ -> set_id cfunc id typ f_sym_table; (Void, SAsn (id, (typ, v)))
         )
         | Some t -> raise (Failure ("var " ^ key ^ " already defined"))

@@ -173,6 +173,7 @@ let translate_no_builtin prog =
           let e' = build_expr builder (t, expr) in
           let store = get_local_asn_loc t name builder in
           ignore (L.build_store e' store builder); e'
+      (* Bug #3 *)
       | SVar name -> L.build_load (get_local_asn_loc_fast name) name builder;
       | SSwap (e1, e2) -> (match (e1, e2) with
           ((_, SVar name1), (_, SVar name2)) ->
