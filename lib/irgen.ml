@@ -116,6 +116,34 @@ let translate_no_builtin prog =
       else i
     in 
 
+    (* Create stores for expr and stmt in advance *)
+    let rec store_local_ids_expr builder ((t, e): sexpr) = match e with
+        SAsn (name, (t, _)) ->
+          (* Assignments should not contain assignments *)
+          ignore (get_local_asn_loc t name builder); ()
+      | SArrayDecl(name, len, atyp, elements) ->
+          ignore (get_local_arr_loc atyp len name builder); ()
+      | _ -> ()
+    in
+
+    let rec store_local_ids_stmt builder = function
+        SBlock sb -> List.fold_left store_local_ids_stmt builder sb
+      | SExpr e -> ignore (store_local_ids_expr builder e); builder
+      | SIf (_, then_stmt, else_stmt) ->
+          ignore (store_local_ids_stmt builder then_stmt);
+          ignore (store_local_ids_stmt builder else_stmt);
+          builder;
+      | SWhile (_, body) -> ignore (store_local_ids_stmt builder body); builder;
+      | SFor (i_name, _, _, body) ->
+          ignore (get_local_asn_loc Int i_name builder);
+          ignore (store_local_ids_stmt builder body);
+          builder;
+      | SFordown (i_name, _, _, body) ->
+          ignore (get_local_asn_loc Int i_name builder);
+          ignore (store_local_ids_stmt builder body);
+          builder;
+      | _ -> builder
+    in
 
     (* Entry point: expression builder *)
     let rec build_expr builder ((t, e): sexpr) = match e with
@@ -367,7 +395,8 @@ let translate_no_builtin prog =
           L.builder_at_end context for_end_bb
     in
 
-    let func_builder = build_stmt builder (SBlock fdecl.sbody) in
+    let store_builder = store_local_ids_stmt builder (SBlock fdecl.sbody) in
+    let func_builder = build_stmt store_builder (SBlock fdecl.sbody) in
     add_terminal func_builder (L.build_ret_void)
   in
 
