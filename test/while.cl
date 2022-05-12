@@ -7,3 +7,7 @@ int FOO(b be int)
 
 int BAR()
 	return FOO(100)
+
+MAIN()
+	val := BAR()
+	PRINT(val)

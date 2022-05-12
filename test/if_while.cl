@@ -10,3 +10,7 @@ int FOO(b be int, x be bool)
 
 int BAR()
 	return FOO(1, TRUE)
+
+MAIN()
+	val := BAR()
+	PRINT(val)
