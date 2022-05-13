@@ -89,10 +89,4 @@ Python implementations of the same CLeuRoS code are provided and we compare and 
 ```
 $ cd test
 $ ./test_suite.sh
-```
-
-
-
-## Plans for the Future
-
-A group member will copy the code to another repo and maintain it. After the repo is created, its link will be posted. here.
+```x
