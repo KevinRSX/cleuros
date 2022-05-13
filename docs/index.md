@@ -6,5 +6,5 @@ Documentation for CLeuRoS psuedo code language
 
 [LRM](./lrm.md)
 
-
+[Bug Report](./bugs.md)
 

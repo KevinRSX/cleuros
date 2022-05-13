@@ -1,76 +1,98 @@
-# cleuros
+# CleuRoS: CLRS Pseudocode Language
 
-First, change to the lib directory `cd lib`
+The is a course project for [COMS4115 Programming Languages and Translators, Spring 2022](https://verigu.github.io/4115Spring2022/).
 
+Team members:
 
-To build `cleuros.native`: `make` or `make build` 
+- Samuel Meshoyrer
+- Brian Paick
+- Kaiwen Xue
+- Yuki Guo
 
-```
-Usage: ./cleuros.native [-a|-s|-l] <source.cl>
-  -a Print the AST
-  -s Print the SAST
-  -l Print the generated LLVM IR
-  -help  Display this list of options
-  --help  Display this list of options
-```
+This repo contains the design documents and a reference compiler of a new programming language CLeuRoS. The language aims at bridging the gap between the pseudocode in *Introduction to Algorithms* (CLRS) and actual programming languages such as C++.
 
 
 
-In `lib`, you can generate and run an `*.out` LLVM bitcode for source program`<source.cl>` placed in `test/` using
+## Bubble Sort in CLeuRoS
 
-```
-$ ./tester.sh source
-$ lli source.out
-```
-
-
-
-You can manually compare the result to the expected result using
+Bubble sort in CLeuRoS:
 
 ```
-$ diff ../test/expected/<source>.expected <(lli <source>.out)
+arr := [4, 5, 2, 1]
+for i := 0 to arr.length - 2
+		for j := arr.length - 1 downto i + 1
+			if arr[j] < arr[j - 1]
+				exchange arr[j] with arr[j - 1]
+```
+
+Bubble sort in CLRS:
+
+![](./static/bubble_sort.png)
+
+
+
+## Compile Your CLeuRoS code
+
+Tested on
+
+- OCaml 4.12.0
+- LLVM 13.0.0
+- MacOS 11.x and 12.x
+
+
+
+First, change to the `lib` directory. You should build the compiler `cleuros.native`. The compiler will accept a CLeuRoS source file and translate it to [LLVM IR](https://llvm.org/docs/LangRef.html).
+
+```
+$ cd lib
+$ make
+$ ./cleuros.native ../test/gcd.cl
+```
+
+Now you have a `gcd.out` file in `lib`. That is the LLVM IR of `gcd.cl`. You then can either interpret it using `lli` or compile it to assembly code using `llc`.
+
+```
+$ lli gcd.out
+```
+
+or
+
+```
+$ llc gcd.out -o gcd.s
+$ gcc gcd.s -o gcd
+$ ./gcd
 ```
 
 
 
-Example session
+Alteratively, in `lib`, you can generate and run an `*.out` LLVM bitcode for source program`<source.cl>` placed in `demo/` using
 
 ```
-*[main][~/Desktop/repo/cleuros]$ llvm version
-zsh: command not found: llvm
-*[main][~/Desktop/repo/cleuros]$ lli --version
-Homebrew LLVM version 13.0.1
-  Optimized build.
-  Default target: arm64-apple-darwin21.4.0
-  Host CPU: cyclone
-*[main][~/Desktop/repo/cleuros]$ opam show llvm
-
-<><> llvm: information on all versions ><><><><><><><><><><><><><><><><><><>  🐫
-name                   llvm
-all-installed-versions 13.0.0 [default]
-... (truncated)
-
-<><> Version-specific details <><><><><><><><><><><><><><><><><><><><><><><>  🐫
-version      13.0.0
-... (truncated)
-
-*[main][~/Desktop/repo/cleuros]$ cd lib
-*[main][~/Desktop/repo/cleuros/lib]$ ./tester.sh array_loop
-+ TEST_PATH=../test/array_loop.cl
-+ make
-ocamlbuild -pkg llvm cleuros.native
-Finished, 28 targets (28 cached) in 00:00:00.
-+ ./cleuros.native -l ../test/array_loop.cl
-*[main][~/Desktop/repo/cleuros/lib]$ lli array_loop.out
-81
-64
-49
-36
-25
-16
-9
+$ ./tester.sh gcd
+$ lli gcd.out
+GCD:
 4
-100
-0
+GCD:
+7
+GCD:
+4
+GCD:
+256
 ```
 
+
+
+## Running Tests
+
+Python implementations of the same CLeuRoS code are provided and we compare and verify the results. To run our test, go to the test directory and run our test script.
+
+```
+$ cd test
+$ ./test_suite.sh
+```
+
+
+
+## Plans for the Future
+
+A group member will copy the code to another repo and maintain it. After the repo is created, its link will be posted. here.

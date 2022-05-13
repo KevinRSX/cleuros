@@ -43,3 +43,9 @@ Workaround: let the compiler complain when this happens
 
 The String literal in scanner is flawed as its regex uses an inclusive pattern (letter OR punctuation OR number OR ...) instead of an exclusive one (everything but \ and ""). Some patterns cannot be recognized. We currently just avoid printing those patterns.
 
+
+
+## 5. Type Casting
+
+Type casting should be supported rigorously as defined in the LRM, but we failed to complete any of them. We did have an implementation for float to int automatic casting. However, the IR generation has bug for stored float, so it has been removed.
+

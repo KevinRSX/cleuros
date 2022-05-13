@@ -124,15 +124,6 @@ let translate_no_builtin prog =
     let get_local_arr_loc_fast name = StringMap.find name !local_arrs in
 
 
-    (* Decouples type casting from evaluation
-       The rule is you must cast support values, or there will be errros
-       How is that supported? Because you have type checked! *)
-    let cast_float i =
-      let ti = L.type_of i in
-      if ti = i32_t then L.const_intcast i f_t true
-      else i
-    in 
-
     (* Create stores for expr and stmt in advance *)
     let rec store_local_ids_expr builder ((t, e): sexpr) = match e with
         SAsn (name, (t, _)) ->
@@ -231,7 +222,7 @@ let translate_no_builtin prog =
           ) el1 el2 "btmp" builder in
           (match t with
               Int -> build_int bop e1' e2'
-            | Float -> build_float bop (cast_float e1') (cast_float e2')
+            | Float -> build_float bop e1' e2' (* Bug #5 *)
             | _ -> build_bool bop e1' e2'
           )
       | SCall ("print_int", args) ->
