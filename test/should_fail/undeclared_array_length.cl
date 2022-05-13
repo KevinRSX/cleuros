@@ -1,2 +1,0 @@
-MAIN()
-	x:= arr.length

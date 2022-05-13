@@ -1,15 +1,10 @@
 # CleuRoS: CLRS Pseudocode Language
 
-The is a course project for [COMS4115 Programming Languages and Translators, Spring 2022](https://verigu.github.io/4115Spring2022/).
-
-Team members:
-
-- Samuel Meshoyrer
-- Brian Paick
-- Kaiwen Xue
-- Yuki Guo
-
 This repo contains the design documents and a reference compiler of a new programming language CLeuRoS. The language aims at bridging the gap between the pseudocode in *Introduction to Algorithms* (CLRS) and actual programming languages such as C++.
+
+
+
+**Currently, while the language's appearance is decent and might be an OK course project, it has no interesting features. In addition, the software design of the compiler is awfully flawed. I will do an in-depth investigation on how to improve it. More details will appear soon!**
 
 
 
@@ -82,11 +77,6 @@ GCD:
 
 
 
-## Running Tests
+---
 
-Python implementations of the same CLeuRoS code are provided and we compare and verify the results. To run our test, go to the test directory and run our test script.
-
-```
-$ cd test
-$ ./test_suite.sh
-```x
+The was originally a course project for [COMS4115 Programming Languages and Translators, Spring 2022](https://verigu.github.io/4115Spring2022/). The deliverable of the course project can be found at https://github.com/smeshoyrer/cleuros. Sam Meshoyrer and Brian Paick also contributed to the project.
